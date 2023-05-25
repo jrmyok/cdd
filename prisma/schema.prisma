@@ -15,21 +15,21 @@ model Coin {
   coinGeckoId       String   @unique
   name              String
   ticker            String   @unique
-  price             Float
-  percentChange     Float
-  lastUpdated       DateTime
-  whitePaper        String
-  riskLevel         Float
-  whitePaperUrl     String
+  price             Float?
+  percentChange     Float?
+  lastUpdated       DateTime @default(now())
+  whitePaper        String?
+  riskLevel         Float?
+  whitePaperUrl     String?
   // relationships - metric
-  metrics           Metric   @relation(fields: [metricId], references: [id])
+  metrics           Metric?  @relation(fields: [metricId], references: [id])
   image             String?
   marketCap         Float?
   totalVolume       Float?
   circulatingSupply Float?
   totalSupply       Float?
 
-  metricId Int
+  metricId Int?
 }
 
 // metric model holds booleans on whether or not a coin contains certain metrics in the whitepaper, ie regulation, public team, tokenomics, etc
