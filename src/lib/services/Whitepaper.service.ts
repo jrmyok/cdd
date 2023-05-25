@@ -59,7 +59,17 @@ export const WhitePaperService = {
         );
 
         if (!href) {
-          throw new Error("No href found for whitepaper link" + link);
+          console.log("No links with 'whitepaper' found", link);
+          await prisma.coin.update({
+            where: {
+              id: coinId,
+            },
+            data: {
+              noWhitePaper: true,
+            },
+          });
+          await page.close();
+          return;
         }
 
         // navigate to the whitepaper link
@@ -78,6 +88,14 @@ export const WhitePaperService = {
         });
       } else {
         console.log("No links with 'whitepaper' found", link);
+        await prisma.coin.update({
+          where: {
+            id: coinId,
+          },
+          data: {
+            noWhitePaper: true,
+          },
+        });
       }
     } catch (e) {
       console.log("Error: ", e);
@@ -98,7 +116,7 @@ export const WhitePaperService = {
     // const exmapleResponse = ``;
 
     const prompt = {
-      model: "gpt-4",
+      model: "gpt-3.5-turbo",
       messages: [
         {
           role: ChatCompletionRequestMessageRoleEnum.System,

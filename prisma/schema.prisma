@@ -28,8 +28,8 @@ model Coin {
   totalVolume       Float?
   circulatingSupply Float?
   totalSupply       Float?
-
-  metricId Int?
+  noWhitePaper      Boolean?
+  metricId          Int?
 }
 
 // metric model holds booleans on whether or not a coin contains certain metrics in the whitepaper, ie regulation, public team, tokenomics, etc
