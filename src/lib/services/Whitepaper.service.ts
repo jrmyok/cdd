@@ -1,4 +1,5 @@
 import puppeteer, { type Browser, type ElementHandle } from "puppeteer";
+import { prisma } from "@/server/db";
 
 let browserPromise: Promise<Browser> | undefined;
 
@@ -33,19 +34,48 @@ export const WhitePaperService = {
     );
   },
 
-  async getWhitePaper({ browser, link }: { link: string; browser: Browser }) {
+  async getWhitePaper({
+    browser,
+    link,
+    coinId,
+  }: {
+    coinId: number;
+    link: string;
+    browser: Browser;
+  }) {
     const page = await browser.newPage();
     await page.goto(link, { waitUntil: "networkidle2", timeout: 30000 });
 
     // Find a link containing 'whitepaper' text and click it
-    const whitepaperLink = await page.$x("//a[contains(., 'whitepaper')]");
+    const whitepaperLink = await page.$x("//a[contains(., 'Whitepaper')]");
+    console.log(whitepaperLink[0]);
     if (whitepaperLink.length > 0) {
-      await (whitepaperLink[0] as ElementHandle).click();
-      await page.waitForNavigation({ waitUntil: "networkidle0" });
+      try {
+        const href = await (whitepaperLink[0] as ElementHandle).evaluate((el) =>
+          el.getAttribute("href")
+        );
 
-      // Extract and save the text from the new page
-      const text = await page.evaluate(() => document.body.innerText);
-      console.log(text);
+        if (!href) {
+          throw new Error("No href found");
+        }
+
+        // navigate to the whitepaper link
+        await page.goto(href, { waitUntil: "networkidle2", timeout: 30000 });
+
+        // get the text
+        const text = await page.evaluate(() => document.body.innerText);
+        await prisma.coin.update({
+          where: {
+            id: coinId,
+          },
+          data: {
+            whitePaper: text,
+            whitePaperUrl: href,
+          },
+        });
+      } catch (e) {
+        console.log("Error: ", e);
+      }
     } else {
       console.log("No links with 'whitepaper' found");
     }
