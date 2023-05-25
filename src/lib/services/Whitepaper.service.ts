@@ -44,19 +44,20 @@ export const WhitePaperService = {
     browser: Browser;
   }) {
     const page = await browser.newPage();
-    await page.goto(link, { waitUntil: "networkidle2", timeout: 30000 });
 
-    // Find a link containing 'whitepaper' text and click it
-    const whitepaperLink = await page.$x("//a[contains(., 'Whitepaper')]");
-    console.log(whitepaperLink[0]);
-    if (whitepaperLink.length > 0) {
-      try {
+    try {
+      await page.goto(link, { waitUntil: "networkidle2", timeout: 30000 });
+
+      // Find a link containing 'whitepaper' text and click it
+      const whitepaperLink = await page.$x("//a[contains(., 'Whitepaper')]");
+      console.log(whitepaperLink[0]);
+      if (whitepaperLink.length > 0) {
         const href = await (whitepaperLink[0] as ElementHandle).evaluate((el) =>
           el.getAttribute("href")
         );
 
         if (!href) {
-          throw new Error("No href found");
+          throw new Error("No href found for whitepaper link" + link);
         }
 
         // navigate to the whitepaper link
@@ -73,14 +74,15 @@ export const WhitePaperService = {
             whitePaperUrl: href,
           },
         });
-      } catch (e) {
-        console.log("Error: ", e);
+      } else {
+        console.log("No links with 'whitepaper' found", link);
       }
-    } else {
-      console.log("No links with 'whitepaper' found");
+    } catch (e) {
+      console.log("Error: ", e);
+    } finally {
+      await page.close();
     }
 
     // close the page
-    await page.close();
   },
 };
