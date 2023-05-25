@@ -22,6 +22,7 @@ export const OpenAIService = {
   ): Promise<T> {
     try {
       const response = await this.createChatCompletion(prompt);
+      console.log(response);
       const parsed = JSON.parse(response);
       return zodSchema.parse(parsed);
     } catch (error) {

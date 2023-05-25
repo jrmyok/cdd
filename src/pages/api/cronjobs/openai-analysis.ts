@@ -12,24 +12,37 @@ export default async function handler(
   try {
     authenticate(req);
     const coins = await CoinDataService.getAllWithWhitePaper();
-    for (const coin of coins) {
-      if (!coin.whitePaper || coin.metricId) continue;
-      logger.info("Getting openai analysis for", coin.name);
-      const metrics = await WhitePaperService.analyseWhitePaper(
-        coin.whitePaper
-      );
-      await prisma.coin.update({
-        where: { id: coin.id },
-        data: {
-          metrics: {
-            create: {
-              ...metrics.extractedData,
-              whitePaper: true,
+    const promises: Promise<void>[] = [];
+    for (const coin of coins.slice(10)) {
+      if (!coin.whitePaper) continue;
+      if (coin.metricId) continue;
+
+      logger.info("Getting openai analysis for", coin.coinGeckoId);
+
+      async function getOpenAiAnalysis() {
+        const metrics = await WhitePaperService.analyseWhitePaper(
+          coin.whitePaper as string
+        );
+        await prisma.coin.update({
+          where: { id: coin.id },
+          data: {
+            metrics: {
+              create: {
+                ...metrics.extractedData,
+                whitePaper: true,
+              },
             },
           },
-        },
-      });
+        });
+      }
+      promises.push(getOpenAiAnalysis());
+
+      if (promises.length > 10) {
+        await Promise.all(promises);
+        promises.length = 0;
+      }
     }
+    await Promise.all(promises);
 
     logger.info("[openai analysis] updated coin white papers");
     handleSuccess("openai analysis updated", res);

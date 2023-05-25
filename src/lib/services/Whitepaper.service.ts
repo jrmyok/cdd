@@ -120,7 +120,7 @@ export const WhitePaperService = {
       messages: [
         {
           role: ChatCompletionRequestMessageRoleEnum.System,
-          content: `You are a high performing, crypto analyst, extracting the following data from whitepapers: ${type}`,
+          content: `You are a high performing, crypto analyst, extracting the following data from whitepapers into the following typescript object: ${type}`,
         },
         // {
         //   role: ChatCompletionRequestMessageRoleEnum.User,
