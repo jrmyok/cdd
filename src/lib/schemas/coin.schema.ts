@@ -13,6 +13,11 @@ export const coinSchema = z.object({
   totalSupply: z.number().nullable(),
 });
 
+export const MetricZodSchema = z.object({
+  regulation: z.boolean(),
+  publicTeam: z.boolean(),
+});
+
 export const newCoinSchema = z.object({
   coinGeckoId: z.string(),
   ticker: z.string(),

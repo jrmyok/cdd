@@ -1,5 +1,8 @@
 import puppeteer, { type Browser, type ElementHandle } from "puppeteer";
 import { prisma } from "@/server/db";
+import { ChatCompletionRequestMessageRoleEnum } from "openai";
+import { OpenAIService } from "@/lib/services/OpenAI.service";
+import { MetricZodSchema } from "@/lib/schemas/coin.schema";
 
 let browserPromise: Promise<Browser> | undefined;
 
@@ -82,7 +85,50 @@ export const WhitePaperService = {
     } finally {
       await page.close();
     }
+  },
 
-    // close the page
+  async analyseWhitePaper(whitepaper: string) {
+    // create a zod schema for the data we want to extract
+    const type = `{
+      "shortSummary": string;
+      "regulation": boolean; // is the project regulated? does the project have a legal entity? does the project mention regulation in the whitepaper?
+      "publicTeam": boolean; // is the team public? does the team have linkedin profiles? does the team have github profiles?
+    }`;
+
+    // const exampleWhitePaper = ``;
+    // const exmapleResponse = ``;
+
+    const prompt = {
+      model: "gpt-4",
+      messages: [
+        {
+          role: ChatCompletionRequestMessageRoleEnum.System,
+          content: `You are a high performing, crypto analyst, extracting the following data from whitepapers: ${type}`,
+        },
+        // {
+        //   role: ChatCompletionRequestMessageRoleEnum.User,
+        //   content: exampleWhitePaper,
+        // },
+        // {
+        //   role: ChatCompletionRequestMessageRoleEnum.Assistant,
+        //   content: exmapleResponse,
+        // },
+        {
+          role: ChatCompletionRequestMessageRoleEnum.User,
+          content: `whitepaper = ${whitepaper}`,
+        },
+      ],
+      temperature: 0,
+    };
+
+    try {
+      const extractedData = await OpenAIService.createChatCompletionWithType(
+        prompt,
+        MetricZodSchema
+      );
+      return { extractedData, prompt };
+    } catch (error: any) {
+      throw new Error(error);
+    }
   },
 };

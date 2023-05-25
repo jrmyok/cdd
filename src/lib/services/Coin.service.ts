@@ -14,6 +14,16 @@ export const CoinDataService = {
     return prisma.coin.findMany();
   },
 
+  async getAllWithWhitePaper() {
+    return prisma.coin.findMany({
+      where: {
+        whitePaperUrl: {
+          not: null,
+        },
+      },
+    });
+  },
+
   async addCoin(coin: NewCoin) {
     try {
       const parsedCoin = newCoinSchema.parse(coin);
