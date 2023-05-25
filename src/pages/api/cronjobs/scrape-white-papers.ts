@@ -15,6 +15,7 @@ export default async function handler(
     // get coins from prisma
     const coins = await CoinDataService.getAllCoins();
     for (const coin of coins) {
+      if (coin.noWhitePaper) continue;
       logger.info("Getting white paper for", coin.coinGeckoId);
       await WhitePaperService.getWhitePaper({
         coinId: coin.id,
