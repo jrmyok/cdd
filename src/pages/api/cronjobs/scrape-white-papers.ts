@@ -15,20 +15,18 @@ export default async function handler(
     // get coins from prisma
     const coins = await CoinDataService.getAllCoins();
     for (const coin of coins) {
-      logger.info("Getting white paper for", coin.name);
+      logger.info("Getting white paper for", coin.coinGeckoId);
       await WhitePaperService.getWhitePaper({
         coinId: coin.id,
         browser,
         link:
           coin.whitePaperUrl ??
-          `https://www.coingecko.com/en/coins/${coin.name}`,
+          `https://www.coingecko.com/en/coins/${coin.coinGeckoId}`,
       });
     }
 
     logger.info("[white paper scraper] updated coin white papers");
     handleSuccess("white papers scraped", res);
-
-    const msg = `✅ white paper open ai job`;
   } catch (e) {
     handleError("white paper scraper", e, res);
   }

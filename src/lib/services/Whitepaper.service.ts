@@ -53,7 +53,6 @@ export const WhitePaperService = {
 
       // Find a link containing 'whitepaper' text and click it
       const whitepaperLink = await page.$x("//a[contains(., 'Whitepaper')]");
-      console.log(whitepaperLink[0]);
       if (whitepaperLink.length > 0) {
         const href = await (whitepaperLink[0] as ElementHandle).evaluate((el) =>
           el.getAttribute("href")
