@@ -3,6 +3,7 @@ import { type NextApiRequest, type NextApiResponse } from "next";
 
 export function authenticate(req: NextApiRequest) {
   const { "x-secret-key": secret } = req.body;
+  console.log(process.env.CRONJOB_SECRET_KEY, secret, req.body);
   if (
     !process.env.CRONJOB_SECRET_KEY ||
     secret !== process.env.CRONJOB_SECRET_KEY
