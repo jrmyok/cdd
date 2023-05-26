@@ -72,7 +72,7 @@ export const CoinTable: FC<CoinTableProps> = ({ coins, isLoading }) => {
                       onClick={() => {
                         router.push(`/protected/coin/${coin?.id}`);
                       }}
-                      className="cursor-pointer rounded-lg px-3 transition duration-300 ease-in-out  hover:bg-gradient-to-bl hover:from-fuchsia-800/5 hover:to-fuchsia-800 hover:shadow-md   hover:shadow-fuchsia-700 hover:ring hover:ring-fuchsia-500/20"
+                      className="cursor-pointer rounded-lg px-3 transition duration-300 ease-in-out hover:bg-fuchsia-800/50 hover:shadow-md hover:shadow-fuchsia-700 hover:ring hover:ring-fuchsia-500/20   lg:hover:bg-gradient-to-bl lg:hover:from-fuchsia-800/5 lg:hover:to-fuchsia-800"
                     >
                       <td className="flex-nowrap whitespace-nowrap rounded-l-lg py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-4">
                         {coin.image &&
