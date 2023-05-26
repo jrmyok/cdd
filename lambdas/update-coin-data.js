@@ -10,9 +10,11 @@ exports.handler = async (event, context) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        secretKey: process.env.CRONJOB_SECRET_KEY,
+        "x-secret-key": process.env.CRONJOB_SECRET_KEY,
       }),
     });
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     console.log("Request to ping coins update sent asynchronously");
 

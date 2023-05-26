@@ -123,7 +123,16 @@ export const CoinDataService = {
           }
         });
 
-        for (const coin of parsedCoinData) {
+        const uniqueCoins = parsedCoinData.filter(
+          (coin, index, self) =>
+            coin &&
+            self.findIndex(
+              (c) =>
+                c.coinGeckoId === coin.coinGeckoId && c.ticker === coin.ticker
+            ) === index
+        );
+
+        for (const coin of uniqueCoins) {
           if (!coin) continue;
 
           const {
