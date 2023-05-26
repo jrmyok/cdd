@@ -76,7 +76,7 @@ export default function Table() {
           <h1 className="text-base font-semibold leading-6 text-white">
             A list of available coins with verified data
           </h1>
-          <p className="mt-2 text-sm text-gray-300"></p>
+          <p className="text-sm text-gray-300"></p>
         </div>
         <div className="my-6 w-full lg:grid lg:grid-cols-4 lg:gap-4">
           <FilterForm

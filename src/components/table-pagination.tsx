@@ -24,11 +24,11 @@ const Pagination: React.FC<PaginationProps> = ({
   return (
     <div
       className={
-        "sticky bottom-0 flex w-full items-center justify-center gap-x-10 border-t border-gray-500 bg-gray-700 py-3"
+        "sticky bottom-0 flex w-full items-center justify-center gap-x-10 border-t border-gray-500 bg-gray-900 py-3 disabled:opacity-50"
       }
     >
       <button
-        className="flex rounded-xl bg-gray-900 p-2 text-xs font-medium text-white"
+        className="flex rounded-lg bg-gray-50 p-1 text-xs font-medium text-gray-900 disabled:opacity-50"
         onClick={previousPage}
         disabled={currentPage === 1}
       >
@@ -55,7 +55,7 @@ const Pagination: React.FC<PaginationProps> = ({
         {currentPage}
       </span>
       <button
-        className="flex rounded-xl bg-gray-900 p-2 text-xs font-medium text-white"
+        className="flex rounded-lg bg-gray-50 p-1 text-xs font-medium  text-gray-900"
         onClick={nextPage}
         disabled={currentPage === totalPages}
       >

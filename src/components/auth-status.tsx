@@ -7,8 +7,9 @@ export default function AuthStatus() {
   return (
     <div className="absolute top-5 flex w-full items-center justify-center">
       {isLoggedIn && (
-        <p className="text-sm text-stone-200">
-          Signed in as {session.user?.email}
+        <p className="flex text-sm text-stone-200">
+          <span className={"hidden md:block"}>Signed in as:&nbsp; </span>
+          {session.user?.email}
         </p>
       )}
     </div>
