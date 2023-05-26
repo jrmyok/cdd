@@ -14,6 +14,7 @@ export const coinSchema = z.object({
 });
 
 export const MetricZodSchema = z.object({
+  summary: z.string().nullable().optional(),
   regulation: z.boolean(),
   publicTeam: z.boolean(),
 });
@@ -77,3 +78,38 @@ export type CoinGeckoMarketDataSchema = z.infer<
 >;
 
 export type CoinGeckoCoinListSchema = z.infer<typeof coinGeckoCoinListSchema>;
+
+export const FilterSchema = z.object({
+  name: z.string().optional(),
+  ticker: z.string().optional(),
+  marketCap: z
+    .object({
+      gte: z.number().optional(),
+      lte: z.number().optional(),
+    })
+    .optional(),
+  riskLevel: z
+    .object({
+      gte: z.number().optional(),
+      lte: z.number().optional(),
+    })
+    .optional(),
+});
+
+export const OrderBySchema = z
+  .object({
+    field: z.enum(["name", "ticker", "marketCap", "riskLevel"]),
+    direction: z.enum(["asc", "desc"]),
+  })
+  .optional();
+
+export const GetCoinSchema = z.object({
+  filter: FilterSchema.optional(),
+  orderBy: OrderBySchema.optional(),
+  skip: z.number(),
+  take: z.number(),
+});
+
+export type GetCoin = z.infer<typeof GetCoinSchema>;
+export type Filter = z.infer<typeof FilterSchema>;
+export type OrderBy = z.infer<typeof OrderBySchema>;

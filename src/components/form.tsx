@@ -33,16 +33,20 @@ export default function Form({ type }: { type: "login" | "register" }) {
           toast.success("Login Successful");
           router.push("/protected");
         } else {
+          const email = e.currentTarget.email.value;
+          const password = e.currentTarget.password.value;
           const res = await registerUser.mutateAsync({
-            email: e.currentTarget.email.value,
-            password: e.currentTarget.password.value,
+            email,
+            password,
           });
           setLoading(false);
           if (res) {
-            toast.success("Account created! Redirecting to login...");
-            setTimeout(() => {
-              router.push("/login");
-            }, 2000);
+            toast.success("Account created! Redirecting to dashboard...");
+            await signIn("credentials", {
+              email,
+              password,
+              callbackUrl: "/protected",
+            });
           } else {
             toast.error("Something went wrong.");
           }

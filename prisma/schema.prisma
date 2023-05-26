@@ -35,6 +35,7 @@ model Coin {
 // metric model holds booleans on whether or not a coin contains certain metrics in the whitepaper, ie regulation, public team, tokenomics, etc
 model Metric {
   id          Int      @id @default(autoincrement())
+  summary     String?
   regulation  Boolean
   publicTeam  Boolean
   whitePaper  Boolean

@@ -17,23 +17,33 @@ export default async function handler(
       if (!coin.whitePaper) continue;
       if (coin.metricId) continue;
 
-      logger.info("Getting openai analysis for", coin.coinGeckoId);
+      logger.info(`Getting openai analysis for ${coin.coinGeckoId}`);
 
       async function getOpenAiAnalysis() {
-        const metrics = await WhitePaperService.analyseWhitePaper(
-          coin.whitePaper as string
-        );
-        await prisma.coin.update({
-          where: { id: coin.id },
-          data: {
-            metrics: {
-              create: {
-                ...metrics.extractedData,
-                whitePaper: true,
+        try {
+          const metrics = await WhitePaperService.analyseWhitePaper(
+            coin.whitePaper as string
+          );
+          await prisma.coin.update({
+            where: { id: coin.id },
+            data: {
+              metrics: {
+                create: {
+                  summary: metrics.summary,
+                  regulation: metrics.regulation,
+                  publicTeam: metrics.publicTeam,
+                  whitePaper: true,
+                },
               },
             },
-          },
-        });
+          });
+        } catch (e) {
+          logger.error(
+            `[openai analysis] error getting analysis for ${coin.coinGeckoId}`,
+            e
+          );
+          return;
+        }
       }
       promises.push(getOpenAiAnalysis());
 

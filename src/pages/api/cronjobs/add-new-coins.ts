@@ -4,6 +4,7 @@ import { CoinDataService } from "@/lib/services/Coin.service";
 import { newCoinSchema } from "@/lib/schemas/coin.schema";
 import { logger } from "@/lib/logger";
 
+// run daily
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse

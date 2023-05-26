@@ -11,13 +11,17 @@ import { logger } from "@/lib/logger";
 const coinGeckoBase = process.env.COINGECKO_BASE_URL ?? "";
 export const CoinDataService = {
   async getAllCoins() {
-    return prisma.coin.findMany();
+    return prisma.coin.findMany({
+      orderBy: {
+        marketCap: "desc",
+      },
+    });
   },
 
   async getAllWithWhitePaper() {
     return prisma.coin.findMany({
       where: {
-        whitePaperUrl: {
+        whitePaper: {
           not: null,
         },
       },
@@ -43,11 +47,20 @@ export const CoinDataService = {
 
   async getCoinList() {
     try {
-      const response = await fetch(`${coinGeckoBase}/coins/list`);
+      const response = await fetch(`${coinGeckoBase}/coins/list`, {
+        headers: {
+          "Content-Type": "application/json",
+          "x-cg-pro-api-key": process.env.COINGECKO_API_KEY ?? "",
+        },
+      });
 
       const data = await response.json();
       const parsedData = coinGeckoCoinListSchema.parse(data);
-      return parsedData.map((coin) => {
+      const filteredCoinData = parsedData.filter(
+        (coin) => coin.symbol && coin.symbol.length <= 6
+      );
+
+      return filteredCoinData.map((coin) => {
         const { id: coinGeckoId, symbol: ticker, name } = coin;
 
         return {
@@ -62,77 +75,91 @@ export const CoinDataService = {
     }
   },
 
-  async getCoinGeckoMarketDataByIds(ids: string[]) {
-    // batch ids into groups of 100
+  async delay(milliseconds: number) {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
+  },
+
+  async fetchCoinData(page: number, ids: string[]) {
+    const url = `${coinGeckoBase}/coins/markets?vs_currency=usd&order=market_cap_desc&ids=${ids.join(
+      ","
+    )}&page=${page}`;
+    while (true) {
+      const response = await fetch(url, {
+        headers: {
+          "Content-Type": "application/json",
+          "x-cg-pro-api-key": process.env.COINGECKO_API_KEY ?? "",
+        },
+      });
+      if (response.status !== 429) {
+        return response.json();
+      }
+      console.log("CoinGecko rate limit hit, waiting 10 seconds...");
+      await this.delay(10000);
+    }
+  },
+
+  async updateCoinDataByIds(ids: string[]) {
+    // Batch ids into groups of 250
     const batchedIds: string[][] = [];
     for (let i = 0; i < ids.length; i += 250) {
       batchedIds.push(ids.slice(i, i + 250));
     }
 
-    const responses: any[] = [];
-    let page = 1;
-    for (const batch of batchedIds.slice(0, 2)) {
+    for (const [index, batch] of batchedIds.entries()) {
       try {
         logger.info(
-          `[get coin gecko market data] batch ${page} of ${batchedIds.length} for ${batch.length} coins`
+          `[get coin gecko market data] Fetching batch ${index + 1} of ${
+            batchedIds.length
+          } for ${batch.length} coins`
         );
-        const response = await fetch(
-          `${coinGeckoBase}/coins/markets?vs_currency=usd&ids=${batch.join(
-            ","
-          )}&page=${page}`
-        );
-        // check if we're being rate limited
-        if (response.status === 429) {
-          console.log("CoinGecko rate limit hit, waiting 5 minutes...");
-          await new Promise((resolve) => setTimeout(resolve, 300000));
+
+        const coins = await this.fetchCoinData(index + 1, batch);
+        const parsedCoinData = coins.map((coin) => {
+          try {
+            return coinGeckoMarketDataSchema.parse(coin);
+          } catch (e) {
+            logger.warn("Failed to parse coin data", coin, e);
+            return null;
+          }
+        });
+
+        for (const coin of parsedCoinData) {
+          if (!coin) continue;
+
+          const {
+            id: coinGeckoId,
+            symbol: ticker,
+            name,
+            image,
+            current_price: price,
+            price_change_percentage_24h: percentChange,
+            market_cap: marketCap,
+            total_volume: totalVolume,
+            circulating_supply: circulatingSupply,
+            total_supply: totalSupply,
+          } = coin;
+
+          await this.updateCoin({
+            coinGeckoId,
+            ticker,
+            name,
+            image,
+            price,
+            percentChange,
+            marketCap,
+            totalVolume,
+            circulatingSupply,
+            totalSupply,
+          });
         }
-        responses.push(await response.json());
-        page++;
-        await new Promise((resolve) => setTimeout(resolve, 10000));
       } catch (e) {
-        console.log("Failed to fetch coin data from CoinGecko");
+        logger.error("Failed to fetch or update coin data", e);
         throw e;
       }
+
+      // Wait for 7 seconds between batches
+      await this.delay(7000);
     }
-
-    const coinData = responses.flat();
-    const parsedCoinData = coinData.map((coin) => {
-      try {
-        return coinGeckoMarketDataSchema.parse(coin);
-      } catch (e) {
-        logger.warn("Failed to parse coin data", coin);
-        return null;
-      }
-    });
-
-    return parsedCoinData.map((coin) => {
-      if (!coin) return null;
-      const {
-        id: coinGeckoId,
-        symbol: ticker,
-        name,
-        image,
-        current_price: price,
-        price_change_percentage_24h: percentChange,
-        market_cap: marketCap,
-        total_volume: totalVolume,
-        circulating_supply: circulatingSupply,
-        total_supply: totalSupply,
-      } = coin;
-
-      return {
-        coinGeckoId,
-        ticker,
-        name,
-        image,
-        price,
-        percentChange,
-        marketCap,
-        totalVolume,
-        circulatingSupply,
-        totalSupply,
-      };
-    });
   },
 
   async updateCoin(coin: CoinSchema) {

@@ -1,7 +1,6 @@
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { authenticate, handleError, handleSuccess } from "@/lib/utils";
 import { CoinDataService } from "@/lib/services/Coin.service";
-import { coinSchema } from "@/lib/schemas/coin.schema";
 import { logger } from "@/lib/logger";
 
 export default async function handler(
@@ -17,33 +16,15 @@ export default async function handler(
       const now = new Date();
       const coinDate = new Date(coin.lastUpdated);
       const diff = (now.getTime() - coinDate.getTime()) / 1000 / 60;
-
-      return diff > 5;
+      return diff > 15;
     });
 
     console.log("Filtered coins...");
-
     const coinGeckoIds = outdatedCoins.map((coin) => coin.coinGeckoId);
-    console.log("Fetching coin data from CoinGecko...");
-    const updatedData = await CoinDataService.getCoinGeckoMarketDataByIds(
-      coinGeckoIds
-    );
-    // update prisma
-    const response = await Promise.all(
-      updatedData.map(async (coin) => {
-        try {
-          console.log(`Updating ${coin.name}...`);
-          const parsedCoin = coinSchema.parse(coin);
-          await CoinDataService.updateCoin(parsedCoin);
-        } catch (e) {
-          console.log(e);
-        }
-      })
-    );
-    logger.info("[update coin data] updated coin data", response);
+    console.log("Updating coin data from CoinGecko...");
+    await CoinDataService.updateCoinDataByIds(coinGeckoIds);
+    logger.info("[update coin data] updated coin data");
     handleSuccess("update coin data", res);
-
-    const msg = `✅ updated coin data`;
   } catch (e) {
     handleError("update coin data", e, res);
   }

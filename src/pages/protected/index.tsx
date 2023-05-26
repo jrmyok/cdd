@@ -6,7 +6,9 @@ export default function Home() {
     <Layout>
       <div className="flex flex-col items-start space-y-5">
         <div className={"h-full w-full"}>
-          <h1 className="text-4xl text-white">Luminate a coin</h1>
+          <h1 className="text-4xl text-white">
+            All Your Crypto Data in One Place
+          </h1>
         </div>
         <Table />
       </div>

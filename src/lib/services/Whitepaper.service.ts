@@ -59,17 +59,7 @@ export const WhitePaperService = {
         );
 
         if (!href) {
-          console.log("No links with 'whitepaper' found", link);
-          await prisma.coin.update({
-            where: {
-              id: coinId,
-            },
-            data: {
-              noWhitePaper: true,
-            },
-          });
-          await page.close();
-          return;
+          throw Error("No links with 'whitepaper' found");
         }
 
         // navigate to the whitepaper link
@@ -82,6 +72,8 @@ export const WhitePaperService = {
             id: coinId,
           },
           data: {
+            // for now, mark the coin as having a whitepaper
+            noWhitePaper: false,
             whitePaper: text,
             whitePaperUrl: href,
           },
@@ -97,8 +89,18 @@ export const WhitePaperService = {
           },
         });
       }
-    } catch (e) {
-      console.log("Error: ", e);
+    } catch (e: any) {
+      if (e.message.includes("No links with 'whitepaper' found")) {
+        console.log("No links with 'whitepaper' found", link);
+        await prisma.coin.update({
+          where: {
+            id: coinId,
+          },
+          data: {
+            noWhitePaper: true,
+          },
+        });
+      }
     } finally {
       await page.close();
     }
@@ -107,29 +109,34 @@ export const WhitePaperService = {
   async analyseWhitePaper(whitepaper: string) {
     // create a zod schema for the data we want to extract
     const type = `{
-      "shortSummary": string;
-      "regulation": boolean; // is the project regulated? does the project have a legal entity? does the project mention regulation in the whitepaper?
-      "publicTeam": boolean; // is the team public? does the team have linkedin profiles? does the team have github profiles?
+      "summary": string | null; // is there a summary?
+      "regulation": boolean; // is the project regulated? does the project have a legal entity? does the project mention regulation in the whitepaper? if nothing is mentioned assume false.
+      "publicTeam": boolean; // is the team public? does the team have linkedin profiles? does the team have github profiles? if nothing is mentioned assume false.
     }`;
 
+    // only github links in the whitepaper
     // const exampleWhitePaper = ``;
-    // const exmapleResponse = ``;
+    const exampleObject = `{
+      "summary": null,
+      "regulation": false,
+      "publicTeam": true
+    }`;
 
     const prompt = {
       model: "gpt-3.5-turbo",
       messages: [
         {
           role: ChatCompletionRequestMessageRoleEnum.System,
-          content: `You are a high performing, crypto analyst, extracting the following data from whitepapers into the following typescript object: ${type}`,
+          content: `You are a crypto investment analyst, extracting the following data from whitepapers into the following typescript object: ${type}`,
         },
         // {
         //   role: ChatCompletionRequestMessageRoleEnum.User,
         //   content: exampleWhitePaper,
         // },
-        // {
-        //   role: ChatCompletionRequestMessageRoleEnum.Assistant,
-        //   content: exmapleResponse,
-        // },
+        {
+          role: ChatCompletionRequestMessageRoleEnum.Assistant,
+          content: exampleObject,
+        },
         {
           role: ChatCompletionRequestMessageRoleEnum.User,
           content: `whitepaper = ${whitepaper}`,
@@ -139,11 +146,18 @@ export const WhitePaperService = {
     };
 
     try {
-      const extractedData = await OpenAIService.createChatCompletionWithType(
-        prompt,
-        MetricZodSchema
-      );
-      return { extractedData, prompt };
+      const extractedData = await OpenAIService.generateChatCompletion(prompt);
+      try {
+        const jsonObject = JSON.parse(extractedData);
+        return MetricZodSchema.parse(jsonObject);
+      } catch (error) {
+        console.error(
+          "OpenAIHelper createChatCompletionWithType error",
+          error,
+          extractedData
+        );
+        throw error;
+      }
     } catch (error: any) {
       throw new Error(error);
     }

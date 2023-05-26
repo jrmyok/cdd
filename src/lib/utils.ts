@@ -3,6 +3,7 @@ import { type NextApiRequest, type NextApiResponse } from "next";
 
 export function authenticate(req: NextApiRequest) {
   const { secret } = req.headers;
+  console.log("auth secret", secret);
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   logger.info(`${req.method}: ${req.url}`);
   if (secret !== process.env.SECRET && process.env.NODE_ENV !== "development") {
