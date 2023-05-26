@@ -8,8 +8,10 @@ exports.handler = async (event, context) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Secret-Key": process.env.CRONJOB_SECRET_KEY,
       },
+      body: JSON.stringify({
+        secretKey: process.env.SECRET_KEY,
+      }),
     });
 
     console.log("Risk analysis response:", response.data);
