@@ -12,9 +12,6 @@ export function authenticate(req: NextApiRequest) {
   }
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   logger.info(`${req.method}: ${req.url}`);
-  if (secret !== process.env.SECRET && process.env.NODE_ENV !== "development") {
-    throw new Error("Unauthorized");
-  }
 }
 
 export function handleError(taskName: string, err: any, res: NextApiResponse) {
