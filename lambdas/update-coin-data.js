@@ -10,7 +10,7 @@ exports.handler = async (event, context) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        secretKey: process.env.SECRET_KEY,
+        secretKey: process.env.CRONJOB_SECRET_KEY,
       }),
     });
 
