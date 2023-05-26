@@ -2,7 +2,7 @@ import { logger } from "@/lib/logger";
 import { type NextApiRequest, type NextApiResponse } from "next";
 
 export function authenticate(req: NextApiRequest) {
-  const { secret } = req.headers;
+  const { "X-Secret-Key": secret } = req.headers;
   if (!process.env.CRONJOB_SECRET || secret !== process.env.CRONJOB_SECRET) {
     throw new Error("Unauthorized");
   }

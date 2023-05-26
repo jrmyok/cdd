@@ -1,5 +1,8 @@
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
+import { config } from "dotenv";
+
+config();
 
 // Define the IAM role for Lambda execution
 const lambdaRole = new aws.iam.Role("lambdaRole", {
@@ -15,66 +18,59 @@ const lambdaPolicy = new aws.iam.RolePolicyAttachment("lambdaPolicy", {
 });
 
 // Define the EC2 instance
-const ec2Instance = new aws.ec2.Instance("myEC2Instance", {
-  instanceType: "t2.micro",
-  ami: "ami-xxxxxxxx",
-  keyName: "myKeyPair",
-  userData: pulumi.interpolate`#!/bin/bash
-    # Install necessary software and configure the instance
-    # ...
-    # Run any additional setup commands here
-  `,
-});
+// USING RAILWAY INSTEAD
+// const ec2Instance = new aws.ec2.Instance("myEC2Instance", {
+//
+// });
 
 // Export the public IP address of the instance
-export const ec2InstancePublicIp = ec2Instance.publicIp;
 
 // Define the Lambdas
 
 const addNewCoinsLambda = new aws.lambda.Function("addNewCoinsFunction", {
-  runtime: aws.lambda.NodeJS12dXRuntime,
+  runtime: "nodejs18.x",
   code: new pulumi.asset.AssetArchive({
-    ".": new pulumi.asset.FileArchive("../lambdas/add-new-coins"),
+    "index.js": new pulumi.asset.FileAsset("../lambdas/add-new-coins.js"),
   }),
   timeout: 300,
   handler: "index.handler",
   role: lambdaRole.arn,
   environment: {
     variables: {
-      EC2_IP: pulumi.interpolate`${ec2Instance.publicIp}`,
-      SECRET_KEY: pulumi.secret(""),
+      CRONJOB_BASE_URL: pulumi.secret(process.env.CRONJOB_BASE_URL || ""),
+      CRONJOB_SECRET_KEY: pulumi.secret(process.env.CRONJOB_SECRET_KEY || ""),
     },
   },
 });
 
 const openAiAnalysisLambda = new aws.lambda.Function("openAiAnalysisFunction", {
-  runtime: aws.lambda.NodeJS12dXRuntime,
+  runtime: "nodejs18.x",
   code: new pulumi.asset.AssetArchive({
-    ".": new pulumi.asset.FileArchive("../lambdas/openai-analysis"),
+    "index.js": new pulumi.asset.FileAsset("../lambdas/openai-analysis.js"),
   }),
   timeout: 300,
   handler: "index.handler",
   role: lambdaRole.arn,
   environment: {
     variables: {
-      EC2_IP: pulumi.interpolate`${ec2Instance.publicIp}`,
-      SECRET_KEY: pulumi.secret("cronjobSecretKey"),
+      CRONJOB_BASE_URL: pulumi.secret(process.env.CRONJOB_BASE_URL || ""),
+      CRONJOB_SECRET_KEY: pulumi.secret(process.env.CRONJOB_SECRET_KEY || ""),
     },
   },
 });
 
 const riskAnalysisLambda = new aws.lambda.Function("riskAnalysisFunction", {
-  runtime: aws.lambda.NodeJS12dXRuntime,
+  runtime: "nodejs18.x",
   code: new pulumi.asset.AssetArchive({
-    ".": new pulumi.asset.FileArchive("../lambdas/risk-analysis"),
+    "index.js": new pulumi.asset.FileAsset("../lambdas/risk-analysis.js"),
   }),
   timeout: 300,
   handler: "index.handler",
   role: lambdaRole.arn,
   environment: {
     variables: {
-      EC2_IP: pulumi.interpolate`${ec2Instance.publicIp}`,
-      SECRET_KEY: pulumi.secret("cronjobSecretKey"),
+      CRONJOB_BASE_URL: pulumi.secret(process.env.CRONJOB_BASE_URL || ""),
+      CRONJOB_SECRET_KEY: pulumi.secret(process.env.CRONJOB_SECRET_KEY || ""),
     },
   },
 });
@@ -82,34 +78,36 @@ const riskAnalysisLambda = new aws.lambda.Function("riskAnalysisFunction", {
 const scrapeWhitePapersLambda = new aws.lambda.Function(
   "scrapeWhitePapersFunction",
   {
-    runtime: aws.lambda.NodeJS12dXRuntime,
+    runtime: "nodejs18.x",
     code: new pulumi.asset.AssetArchive({
-      ".": new pulumi.asset.FileArchive("../lambdas/scrape-white-papers"),
+      "index.js": new pulumi.asset.FileAsset(
+        "../lambdas/scrape-white-papers.js"
+      ),
     }),
     timeout: 300,
     handler: "index.handler",
     role: lambdaRole.arn,
     environment: {
       variables: {
-        EC2_IP: pulumi.interpolate`${ec2Instance.publicIp}`,
-        SECRET_KEY: pulumi.secret("cronjobSecretKey"),
+        CRONJOB_BASE_URL: pulumi.secret(process.env.CRONJOB_BASE_URL || ""),
+        CRONJOB_SECRET_KEY: pulumi.secret(process.env.CRONJOB_SECRET_KEY || ""),
       },
     },
   }
 );
 
 const updateCoinDataLambda = new aws.lambda.Function("updateCoinDataFunction", {
-  runtime: aws.lambda.NodeJS12dXRuntime,
+  runtime: "nodejs18.x",
   code: new pulumi.asset.AssetArchive({
-    ".": new pulumi.asset.FileArchive("../lambdas/update-coin-data"),
+    "index.js": new pulumi.asset.FileAsset("../lambdas/update-coin-data.js"),
   }),
   timeout: 300,
   handler: "index.handler",
   role: lambdaRole.arn,
   environment: {
     variables: {
-      EC2_IP: pulumi.interpolate`${ec2Instance.publicIp}`,
-      SECRET_KEY: pulumi.secret("cronjobSecretKey"),
+      CRONJOB_BASE_URL: pulumi.secret(process.env.CRONJOB_BASE_URL || ""),
+      CRONJOB_SECRET_KEY: pulumi.secret(process.env.CRONJOB_SECRET_KEY || ""),
     },
   },
 });

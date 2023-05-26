@@ -9,7 +9,6 @@ const config = {
   // image
   images: {
     domains: ["assets.coingecko.com"],
-
   },
 
   /**
