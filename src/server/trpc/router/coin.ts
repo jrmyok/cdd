@@ -38,6 +38,16 @@ export const coinRouter = router({
       return ctx.prisma.coin.findMany({
         where: {
           ...filter,
+          name: {
+            contains: input.filter?.name?.contains,
+            startsWith: input.filter?.name?.startsWith,
+            mode: "insensitive",
+          },
+          ticker: {
+            contains: input.filter?.ticker?.contains,
+            startsWith: input.filter?.ticker?.startsWith,
+            mode: "insensitive",
+          },
         },
         include: {
           metrics: true,

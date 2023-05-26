@@ -64,12 +64,6 @@ export default function Table() {
       } else {
         payload = numValue;
       }
-    } else {
-      if (
-        [filterActions.SET_NAME, filterActions.SET_TICKER].includes(actionType)
-      ) {
-        payload = value.toLowerCase();
-      }
     }
 
     dispatch({ type: actionType, payload });
