@@ -73,6 +73,7 @@ export const CoinDataService = {
         .filter(
           (coin, index, self) =>
             coin &&
+            coin.ticker.length <= 6 &&
             self.findIndex(
               (c) =>
                 c.coinGeckoId === coin.coinGeckoId && c.ticker === coin.ticker
