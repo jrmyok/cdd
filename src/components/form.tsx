@@ -18,36 +18,51 @@ export default function Form({ type }: { type: "login" | "register" }) {
         e.preventDefault();
         setLoading(true);
         if (type === "login") {
-          const response = await signIn("credentials", {
-            email: e.currentTarget.email.value,
-            password: e.currentTarget.password.value,
-            callbackUrl: "/protected",
-          });
+          try {
+            const response = await signIn("credentials", {
+              email: e.currentTarget.email.value,
+              password: e.currentTarget.password.value,
+              redirect: false,
+            });
 
-          if (response?.error) {
-            // toast
+            if (response?.error) {
+              // toast
+              setLoading(false);
+              toast.error("Invalid Credentials");
+              return;
+            }
+            toast.success("Login Successful");
+            router.push("/protected");
+          } catch (error) {
             setLoading(false);
             toast.error("Login Failed");
-            return;
           }
-          toast.success("Login Successful");
-          router.push("/protected");
         } else {
           const email = e.currentTarget.email.value;
           const password = e.currentTarget.password.value;
-          const res = await registerUser.mutateAsync({
-            email,
-            password,
-          });
-          setLoading(false);
-          if (res) {
-            toast.success("Account created! Redirecting to dashboard...");
-            await signIn("credentials", {
+          try {
+            const res = await registerUser.mutateAsync({
               email,
               password,
-              callbackUrl: "/protected",
             });
-          } else {
+            setLoading(false);
+            if (res) {
+              toast.success("Account created! Redirecting to dashboard...");
+              await signIn("credentials", {
+                email,
+                password,
+                callbackUrl: "/protected",
+              });
+            } else {
+              toast.error("Something went wrong.");
+            }
+          } catch (error: any) {
+            setLoading(false);
+            // if user already exists
+            if (error.message) {
+              toast.error(error.message);
+              return;
+            }
             toast.error("Something went wrong.");
           }
         }
