@@ -12,7 +12,7 @@ export const Section = (
       style={{
         minHeight: isMdAndLarger ? "calc(100vh - 150px)" : "calc(100vh - 50px)",
       }}
-      className="m-auto flex flex-col justify-start"
+      className=" m-auto flex flex-col justify-start"
     >
       {props.children}
     </div>

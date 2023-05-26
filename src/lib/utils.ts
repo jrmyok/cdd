@@ -3,7 +3,11 @@ import { type NextApiRequest, type NextApiResponse } from "next";
 
 export function authenticate(req: NextApiRequest) {
   const { "X-Secret-Key": secret } = req.headers;
-  if (!process.env.CRONJOB_SECRET || secret !== process.env.CRONJOB_SECRET) {
+  console.log(secret);
+  if (
+    !process.env.CRONJOB_SECRET_KEY ||
+    secret !== process.env.CRONJOB_SECRET_KEY
+  ) {
     throw new Error("Unauthorized");
   }
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

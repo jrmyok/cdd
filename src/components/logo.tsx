@@ -1,14 +1,15 @@
+import Image from "next/image";
+
 export const Logo = () => {
   return (
     <div className={"flex items-center justify-center py-2"}>
-      {/*<Image*/}
-      {/*  src={"/logo.png"}*/}
-      {/*  className=""*/}
-      {/*  alt={"logo"}*/}
-      {/*  width={80}*/}
-      {/*  height={80}*/}
-      {/*/>*/}
-      <span className={"text-6xl"}>✨</span>
+      <Image
+        src={"/logo-header.png"}
+        className=""
+        alt={"logo"}
+        width={50}
+        height={50}
+      />
     </div>
   );
 };

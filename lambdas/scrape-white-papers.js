@@ -2,16 +2,14 @@
 
 exports.handler = async (event, context) => {
   try {
-    const endpoint = `http://${process.env.CRONJOB_BASE_URL}/api/cronjobs/scrape-white-papers`;
+    const endpoint = `https://${process.env.CRONJOB_BASE_URL}/api/cronjobs/scrape-white-papers`;
 
     const response = fetch(endpoint, {
-      method: "GET",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "X-Secret-Key": process.env.CRONJOB_SECRET_KEY,
       },
-      body: JSON.stringify({
-        secretKey: process.env.CRONJOB_SECRET_KEY,
-      }),
     });
 
     console.log("Scrape whitepapers task response:", response.data);

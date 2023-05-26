@@ -1,17 +1,14 @@
 // index.js
 exports.handler = async (event, context) => {
   try {
-    const endpoint = `http://${process.env.CRONJOB_BASE_URL}/api/cronjobs/add-new-coins`;
+    const endpoint = `https://${process.env.CRONJOB_BASE_URL}/api/cronjobs/add-new-coins`;
 
-    // Make a POST request with the secret key in the request body
     const response = fetch(endpoint, {
-      method: "GET",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "X-Secret-Key": process.env.CRONJOB_SECRET_KEY,
       },
-      body: JSON.stringify({
-        secretKey: process.env.CRONJOB_SECRET_KEY,
-      }),
     });
 
     console.log("Add new coins response:", response.data);

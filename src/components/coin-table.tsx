@@ -64,7 +64,7 @@ export const CoinTable: FC<CoinTableProps> = ({ coins, isLoading }) => {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800">
+            <tbody className=" divide-y divide-gray-800">
               {!isLoading && coins
                 ? coins.map((coin) => (
                     <tr
@@ -72,9 +72,9 @@ export const CoinTable: FC<CoinTableProps> = ({ coins, isLoading }) => {
                       onClick={() => {
                         router.push(`/protected/coin/${coin?.id}`);
                       }}
-                      className="cursor-pointer rounded-md  px-3 hover:shadow-lg"
+                      className="cursor-pointer rounded-lg px-3 transition duration-300 ease-in-out  hover:bg-gradient-to-bl hover:from-fuchsia-800/5 hover:to-fuchsia-800 hover:shadow-md   hover:shadow-fuchsia-700 hover:ring hover:ring-fuchsia-500/20"
                     >
-                      <td className=" flex-nowrap whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-4">
+                      <td className="flex-nowrap whitespace-nowrap rounded-l-lg py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-4">
                         {coin.image &&
                         coin.image.includes("assets.coingecko.com") ? (
                           <Image
@@ -100,24 +100,35 @@ export const CoinTable: FC<CoinTableProps> = ({ coins, isLoading }) => {
                       <td className="whitespace-nowrap  px-3 py-4 text-sm text-gray-300">
                         ${coin.price}
                       </td>
-                      <td className="whitespace-nowrap  px-3 py-4 text-sm text-gray-300">
+                      <td className="whitespace-nowrap rounded-r-lg  px-3 py-4 text-sm text-gray-300">
                         {coin.percentChange?.toFixed(3)}%
                       </td>
                     </tr>
                   )) // loading
-                : Array.from(Array(10).keys()).map((i) => (
+                : Array.from(Array(20).keys()).map((i) => (
                     <tr key={i} className="cursor-pointer  hover:bg-stone-800">
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-0">
-                        loading...
+                        <div className="min-w-6 min-h-6 inline-block rounded-full bg-gray-500"></div>
                       </td>
                       <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
-                        loading...
+                        <div
+                          className={`h-4 w-full animate-pulse bg-gray-500/50`}
+                        ></div>
                       </td>
                       <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
-                        loading...
+                        <div
+                          className={`h-4 w-full animate-pulse bg-gray-500`}
+                        ></div>
                       </td>
                       <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
-                        loading...
+                        <div
+                          className={`h-4 w-full animate-pulse bg-gray-500`}
+                        ></div>
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
+                        <div
+                          className={`h-4 w-full animate-pulse bg-gray-500`}
+                        ></div>
                       </td>
                     </tr>
                   ))}
