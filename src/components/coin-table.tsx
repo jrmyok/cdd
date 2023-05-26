@@ -1,8 +1,9 @@
 import { type FC } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import { type Coin, type Metric } from "@prisma/client";
 import Pagination from "@/components/table-pagination";
 import Image from "next/image";
+import { trpc } from "@/lib/trpc";
 
 interface CoinTableProps {
   coins: (Coin & { metrics: Metric })[];
@@ -11,6 +12,8 @@ interface CoinTableProps {
 
 export const CoinTable: FC<CoinTableProps> = ({ coins, isLoading }) => {
   const router = useRouter();
+
+  const { data: coinCount } = trpc.coin.countCoins.useQuery();
   return (
     <div className="w-fill col-span-3 mt-4 flow-root  overflow-x-scroll rounded-lg bg-gray-900 px-5 lg:-ml-6 lg:mt-0 lg:rounded-l-none">
       <div
@@ -120,10 +123,12 @@ export const CoinTable: FC<CoinTableProps> = ({ coins, isLoading }) => {
             </tbody>
           </table>
           <Pagination
-            currentPage={1}
-            totalPages={1}
+            currentPage={
+              router.query.page ? parseInt(router.query.page as string) : 1
+            }
+            totalPages={coinCount ? Math.ceil(coinCount / 20) : 1}
             onPageChange={(page) => {
-              router.push(`/?page=${page}`);
+              router.push(`/protected/?page=${page}`);
             }}
           />
         </div>

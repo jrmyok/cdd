@@ -1,4 +1,4 @@
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import { useReducer } from "react";
 import useDebounce from "@/components/hooks/useDebounce";
 import { filterActions, filterReducer } from "@/components/reducers/filters";
@@ -33,12 +33,13 @@ export default function Table() {
   );
 
   const router = useRouter();
+  const page = Number(router.query.page) || 1;
 
   const filter = getFilter(debouncedState);
 
   const { data: coins, isLoading } = trpc.coin.getCoinsByFilter.useQuery({
     take: 20,
-    skip: 0,
+    skip: (page - 1) * 20,
     filter,
   });
 
@@ -62,6 +63,12 @@ export default function Table() {
         error = "Please enter a valid number";
       } else {
         payload = numValue;
+      }
+    } else {
+      if (
+        [filterActions.SET_NAME, filterActions.SET_TICKER].includes(actionType)
+      ) {
+        payload = value.toLowerCase();
       }
     }
 
@@ -93,9 +100,11 @@ export default function Table() {
 
 const getFilter = (debouncedState) => {
   return {
-    name: debouncedState.name ? { contains: debouncedState.name } : undefined,
+    name: debouncedState.name
+      ? { contains: debouncedState.name, mode: "insensitive" }
+      : undefined,
     ticker: debouncedState.ticker
-      ? { contains: debouncedState.ticker }
+      ? { contains: debouncedState.ticker, mode: "insensitive" }
       : undefined,
     marketCap: {
       gte: debouncedState.minMarketCap

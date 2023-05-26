@@ -38,8 +38,8 @@ export const FilterForm: FC<FilterFormProps> = ({
         <h1 className="col-span-3 text-base font-semibold leading-6 text-white">
           Filters 🔎
         </h1>
-        {/*  hamburger that collapses the filters */}
-        <div className={"flex items-center "}>
+        {/* TODO */}
+        <div className={"flex hidden items-center"}>
           <button
             className={"flex items-center justify-center rounded-lg "}
             type="button"

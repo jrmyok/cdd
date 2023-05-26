@@ -3,6 +3,10 @@ import z from "zod";
 import { GetCoinSchema } from "@/lib/schemas/coin.schema";
 
 export const coinRouter = router({
+  countCoins: protectedProcedure.query(({ ctx }) => {
+    return ctx.prisma.coin.count();
+  }),
+
   getCoin: protectedProcedure
     .input(
       z.object({
