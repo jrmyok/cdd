@@ -3,6 +3,9 @@ const path = require("path");
 
 /** @type {import("eslint").Linter.Config} */
 const config = {
+  ignorePatterns: [
+    "pulumi",
+  ],
   overrides: [
     {
       files: ["*.ts", "*.tsx"],
