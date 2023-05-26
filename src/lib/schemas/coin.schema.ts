@@ -80,8 +80,18 @@ export type CoinGeckoMarketDataSchema = z.infer<
 export type CoinGeckoCoinListSchema = z.infer<typeof coinGeckoCoinListSchema>;
 
 export const FilterSchema = z.object({
-  name: z.string().optional(),
-  ticker: z.string().optional(),
+  name: z
+    .object({
+      contains: z.string().optional(),
+      startsWith: z.string().optional(),
+    })
+    .optional(),
+  ticker: z
+    .object({
+      contains: z.string().optional(),
+      startsWith: z.string().optional(),
+    })
+    .optional(),
   marketCap: z
     .object({
       gte: z.number().optional(),
