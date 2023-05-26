@@ -60,15 +60,24 @@ export const CoinDataService = {
         (coin) => coin.symbol && coin.symbol.length <= 6
       );
 
-      return filteredCoinData.map((coin) => {
-        const { id: coinGeckoId, symbol: ticker, name } = coin;
+      return filteredCoinData
+        .map((coin) => {
+          const { id: coinGeckoId, symbol: ticker, name } = coin;
 
-        return {
-          coinGeckoId,
-          ticker,
-          name,
-        };
-      });
+          return {
+            coinGeckoId,
+            ticker,
+            name,
+          };
+        })
+        .filter(
+          (coin, index, self) =>
+            coin &&
+            self.findIndex(
+              (c) =>
+                c.coinGeckoId === coin.coinGeckoId && c.ticker === coin.ticker
+            ) === index
+        );
     } catch (e) {
       console.log("Failed to fetch coin data from CoinGecko");
       throw e;
@@ -123,16 +132,7 @@ export const CoinDataService = {
           }
         });
 
-        const uniqueCoins = parsedCoinData.filter(
-          (coin, index, self) =>
-            coin &&
-            self.findIndex(
-              (c) =>
-                c.coinGeckoId === coin.coinGeckoId && c.ticker === coin.ticker
-            ) === index
-        );
-
-        for (const coin of uniqueCoins) {
+        for (const coin of parsedCoinData) {
           if (!coin) continue;
 
           const {
