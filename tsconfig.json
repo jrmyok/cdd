@@ -28,5 +28,5 @@
     "**/*.cjs",
     "**/*.mjs"
   ],
-  "exclude": ["node_modules, pulumi"]
+  "exclude": ["node_modules", "pulumi"]
 }
