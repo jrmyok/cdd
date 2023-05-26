@@ -17,8 +17,8 @@ export default function CoinPage() {
     id: Number(id),
   });
 
-  if (isLoading) return <div>Loading...</div>;
-  if (!coin) return <div>404</div>;
+  if (isLoading) return <Layout>Loading...</Layout>;
+  if (!coin) return <Layout>404</Layout>;
 
   // create an object from coin called stats, where each element is an object with a name and value from coin
   const validStats = [
