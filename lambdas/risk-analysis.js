@@ -2,7 +2,7 @@
 
 exports.handler = async (event, context) => {
   try {
-    const endpoint = `${process.env.CRONJOB_BASE_URL}/api/cronjobs/risk-analysis`;
+    const endpoint = `http://${process.env.CRONJOB_BASE_URL}/api/cronjobs/risk-analysis`;
 
     const response = fetch(endpoint, {
       method: "GET",

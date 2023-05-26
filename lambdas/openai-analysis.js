@@ -2,7 +2,7 @@
 
 exports.handler = async (event, context) => {
   try {
-    const endpoint = `${process.env.CRONJOB_BASE_URL}/api/cronjobs/openai-analysis`;
+    const endpoint = `http://${process.env.CRONJOB_BASE_URL}/api/cronjobs/openai-analysis`;
 
     // Make a GET request with the secret key as a header
     const response = fetch(endpoint, {
