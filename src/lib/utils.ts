@@ -3,7 +3,9 @@ import { type NextApiRequest, type NextApiResponse } from "next";
 
 export function authenticate(req: NextApiRequest) {
   const { secret } = req.headers;
-  console.log("auth secret", secret);
+  if (!process.env.CRONJOB_SECRET || secret !== process.env.CRONJOB_SECRET) {
+    throw new Error("Unauthorized");
+  }
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   logger.info(`${req.method}: ${req.url}`);
   if (secret !== process.env.SECRET && process.env.NODE_ENV !== "development") {

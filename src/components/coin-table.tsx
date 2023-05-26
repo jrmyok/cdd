@@ -75,7 +75,8 @@ export const CoinTable: FC<CoinTableProps> = ({ coins, isLoading }) => {
                       className="cursor-pointer rounded-md  px-3 hover:shadow-lg"
                     >
                       <td className=" flex-nowrap whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-4">
-                        {coin.image ? (
+                        {coin.image &&
+                        coin.image.includes("assets.coingecko.com") ? (
                           <Image
                             className="min-w-6 min-h-6 inline-block rounded-full "
                             src={coin.image}
