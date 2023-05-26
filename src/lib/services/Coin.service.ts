@@ -21,6 +21,7 @@ export const CoinDataService = {
   async getAllWithWhitePaper() {
     return prisma.coin.findMany({
       where: {
+        noWhitePaper: false,
         whitePaper: {
           not: null,
         },

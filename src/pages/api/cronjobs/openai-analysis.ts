@@ -10,6 +10,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   try {
+    // TODO: move logic to service
     authenticate(req);
     const coins = await CoinDataService.getAllWithWhitePaper();
     const promises: Promise<void>[] = [];
