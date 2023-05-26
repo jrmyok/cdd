@@ -77,7 +77,7 @@ COINGECKO_API_KEY=<your-secret-key>
 ```
 
 
-### Verel Deployment
+### Vercel Deployment
 
 #### Vercel Deployment Variables
 ```bash
@@ -87,6 +87,6 @@ DATABASE=<your-base-url>
 ## Future Plans
 
 - Langchain is definitely needed to improve the number of whitepapers puppeteer is able to scrape, since right now only a few whitepapers are being parsed from coingecko. 
-- Currently a very simple risk score is being generated, but we can improve this by using more advanced statistical analysis and machine learning techniques.
+- Currently, a very simple risk score is being generated, but we can improve this by using more advanced statistical analysis and machine learning techniques.
 - UI improvements, add more filters and order by options (backend done for this)
 
