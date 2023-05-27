@@ -91,21 +91,44 @@ export const CoinDataService = {
   },
 
   async fetchCoinData(page: number, ids: string[]) {
+    if (ids.length > 250) {
+      throw new Error("CoinGecko API only allows 250 coins per request");
+    }
+
     const url = `${coinGeckoBase}/coins/markets?vs_currency=usd&order=market_cap_desc&ids=${ids.join(
       ","
-    )}&page=${page}`;
+    )}&per_page=${ids.length}`;
+
     while (true) {
-      const response = await fetch(url, {
-        headers: {
-          "Content-Type": "application/json",
-          "x-cg-pro-api-key": process.env.COINGECKO_API_KEY ?? "",
-        },
-      });
-      if (response.status !== 429) {
-        return response.json();
+      try {
+        const response = await fetch(url, {
+          headers: {
+            "Content-Type": "application/json",
+            "x-cg-pro-api-key": process.env.COINGECKO_API_KEY ?? "",
+          },
+        });
+
+        if (response.status === 429) {
+          console.log("CoinGecko rate limit hit, waiting 10 seconds...");
+          await this.delay(10000);
+          continue;
+        }
+
+        if (!response.ok) {
+          throw new Error(`API request failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (!data || !data.length) {
+          throw new Error(`No data returned from CoinGecko, ${url}`);
+        }
+
+        return data;
+      } catch (e: any) {
+        console.error(`Failed to fetch coin data: ${e.message}`);
+        throw e;
       }
-      console.log("CoinGecko rate limit hit, waiting 10 seconds...");
-      await this.delay(10000);
     }
   },
 
@@ -135,6 +158,9 @@ export const CoinDataService = {
         });
 
         for (const coin of parsedCoinData) {
+          logger.info(`[get coin gecko market data] Updating ${coin?.symbol}`, {
+            coin,
+          });
           if (!coin) continue;
 
           const {
@@ -164,8 +190,7 @@ export const CoinDataService = {
           });
         }
       } catch (e) {
-        logger.error("Failed to fetch or update coin data", e);
-        throw e;
+        logger.error(`Failed to fetch or update coin data ${e}`);
       }
 
       // Wait for 7 seconds between batches
