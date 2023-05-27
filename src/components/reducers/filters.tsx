@@ -5,6 +5,8 @@ export const filterActions = {
   SET_MAX_MARKET_CAP: "SET_MAX_MARKET_CAP",
   SET_MIN_RISK_LEVEL: "SET_MIN_RISK_LEVEL",
   SET_MAX_RISK_LEVEL: "SET_MAX_RISK_LEVEL",
+  SET_WHITE_PAPER: "SET_WHITE_PAPER",
+  SET_SUMMARY: "SET_SUMMARY",
 };
 
 export const filterReducer = (state, action) => {
@@ -21,6 +23,10 @@ export const filterReducer = (state, action) => {
       return { ...state, minRiskLevel: action.payload };
     case filterActions.SET_MAX_RISK_LEVEL:
       return { ...state, maxRiskLevel: action.payload };
+    case filterActions.SET_WHITE_PAPER:
+      return { ...state, noWhitePaper: action.payload };
+    case filterActions.SET_SUMMARY:
+      return { ...state, summary: action.payload };
     default:
       throw new Error();
   }

@@ -5,6 +5,7 @@ import { filterActions, filterReducer } from "@/components/reducers/filters";
 import { trpc } from "@/lib/trpc";
 import { CoinTable } from "@/components/coin-table";
 import { FilterForm } from "@/components/filter-form";
+import { type Filter } from "@/lib/schemas/coin.schema";
 
 export default function Table() {
   const initialErrorState = {
@@ -23,6 +24,7 @@ export default function Table() {
     maxMarketCap: "",
     minRiskLevel: "",
     maxRiskLevel: "",
+    noWhitePaper: "",
   });
 
   const debouncedState = useDebounce(state, 500);
@@ -95,7 +97,7 @@ export default function Table() {
 }
 
 const getFilter = (debouncedState) => {
-  return {
+  const filter: Filter = {
     name: debouncedState.name
       ? { contains: debouncedState.name, mode: "insensitive" }
       : undefined,
@@ -118,5 +120,16 @@ const getFilter = (debouncedState) => {
         ? Number(debouncedState.maxRiskLevel)
         : undefined,
     },
+    noWhitePaper: debouncedState.noWhitePaper ? false : undefined,
   };
+
+  if (debouncedState.summary) {
+    filter["metrics"] = {
+      summary: {
+        not: null,
+      },
+    };
+  }
+
+  return filter;
 };

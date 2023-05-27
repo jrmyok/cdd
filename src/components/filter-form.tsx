@@ -10,6 +10,7 @@ interface FilterFormProps {
     maxMarketCap: string;
     minRiskLevel: string;
     maxRiskLevel: string;
+    whitepaper: string;
   };
   errorState: {
     name: string | null;
@@ -19,7 +20,7 @@ interface FilterFormProps {
     minRiskLevel: string | null;
     maxRiskLevel: string | null;
   };
-  handleInputChange: (value: string, actionType) => void;
+  handleInputChange: (value: string | boolean, actionType) => void;
 }
 
 // Define the FilterForm component
@@ -211,6 +212,35 @@ export const FilterForm: FC<FilterFormProps> = ({
         {errorState.maxRiskLevel && (
           <p className="text-xs text-red-500">{errorState.maxRiskLevel}</p>
         )}
+      </div>
+
+      <div className={"flex items-center gap-1 lg:flex-col lg:items-start"}>
+        <label
+          className="
+ w-1/2 whitespace-nowrap text-xs font-semibold text-gray-100"
+        >
+          White Paper
+        </label>
+        <input
+          className={"rounded-lg"}
+          type="checkbox"
+          onChange={(e) =>
+            handleInputChange(e.target.checked, filterActions.SET_WHITE_PAPER)
+          }
+        />
+        <label
+          className="
+ w-1/2 whitespace-nowrap text-xs font-semibold text-gray-100"
+        >
+          Summary Available
+        </label>
+        <input
+          className={"rounded-lg"}
+          type="checkbox"
+          onChange={(e) =>
+            handleInputChange(e.target.checked, filterActions.SET_SUMMARY)
+          }
+        />
       </div>
     </form>
   );

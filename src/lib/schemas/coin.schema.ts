@@ -84,12 +84,14 @@ export const FilterSchema = z.object({
     .object({
       contains: z.string().optional(),
       startsWith: z.string().optional(),
+      mode: z.enum(["insensitive"]).optional(),
     })
     .optional(),
   ticker: z
     .object({
       contains: z.string().optional(),
       startsWith: z.string().optional(),
+      mode: z.enum(["insensitive"]).optional(),
     })
     .optional(),
   marketCap: z
@@ -102,6 +104,16 @@ export const FilterSchema = z.object({
     .object({
       gte: z.number().optional(),
       lte: z.number().optional(),
+    })
+    .optional(),
+  noWhitePaper: z.boolean().optional(),
+  metrics: z
+    .object({
+      summary: z
+        .object({
+          not: z.null().optional(),
+        })
+        .optional(),
     })
     .optional(),
 });
