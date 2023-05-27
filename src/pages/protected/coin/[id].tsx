@@ -30,6 +30,16 @@ export default function CoinPage() {
     "totalSupply",
     "volume",
   ];
+
+  const titles = {
+    marketCap: "Market Cap",
+    riskLevel: "Risk Level",
+    price: "Price",
+    percentChange: "Price Change",
+    circulatingSupply: "Circulating Supply",
+    totalSupply: "Total Supply",
+  };
+
   const stats: Stat[] = Object.entries(coin)
     .map(([name, value]): Stat | null => {
       if (!validStats.includes(name)) return null;
@@ -107,7 +117,7 @@ export default function CoinPage() {
       <div className="grid grid-cols-1 bg-gray-700/10 sm:grid-cols-2  lg:grid-cols-3">
         {stats.slice(0, 3).map((stat, statIdx) => (
           <div
-            key={stat.name}
+            key={titles[stat.name]}
             className={classNames(
               statIdx % 2 === 1
                 ? "sm:border-l"
@@ -118,7 +128,7 @@ export default function CoinPage() {
             )}
           >
             <p className="text-sm font-medium leading-6 text-gray-400">
-              {stat.name}
+              {titles[stat.name]}
             </p>
             <p className="mt-2 flex items-baseline gap-x-2">
               <span className="text-4xl font-semibold tracking-tight text-white">
