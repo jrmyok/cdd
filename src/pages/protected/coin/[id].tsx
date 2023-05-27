@@ -153,7 +153,7 @@ export default function CoinPage() {
             )}
           >
             <p className="text-sm font-medium leading-6 text-gray-400">
-              {stat.name}
+              {titles[stat.name]}
             </p>
             <p className="mt-2 flex items-baseline gap-x-2">
               <span className="text-4xl font-semibold tracking-tight text-white">
