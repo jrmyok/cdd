@@ -1,4 +1,4 @@
-# Crypto Risk Analysis Project
+# Crypto Risk Analysis Project Weekend Project
 
 This project uses a combination of APIs, scraping techniques, and AI to generate risk scores for different cryptocurrencies. Its goal is to provide transparency and awareness about potential scams or low-quality coins, colloquially known as "shitcoins".
 
