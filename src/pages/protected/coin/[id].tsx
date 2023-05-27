@@ -82,14 +82,27 @@ export default function CoinPage() {
             )}
           </p>
         </div>
-        <div
-          className={classNames(
-            "order-first flex-none rounded-full bg-indigo-400/10 px-2 py-1 text-xs font-medium text-indigo-400 ring-1 ring-inset ring-indigo-400/30 sm:order-none",
-            coin.noWhitePaper ? "bg-red-400/10 text-red-400" : ""
-          )}
-        >
-          {coin.noWhitePaper ? "No Whitepaper" : "Whitepaper Available"}
-        </div>
+        {!coin.noWhitePaper ? (
+          <a
+            className={classNames(
+              "order-first flex-none rounded-full bg-indigo-400/10 px-2 py-1 text-xs font-medium text-indigo-400 ring-1 ring-inset ring-indigo-400/30 sm:order-none"
+            )}
+            href={coin.whitePaperUrl as string}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Whitepaper
+          </a>
+        ) : (
+          <div
+            className={classNames(
+              "order-first flex-none rounded-full bg-indigo-400/10 px-2 py-1 text-xs font-medium text-indigo-400 ring-1 ring-inset ring-indigo-400/30 sm:order-none",
+              "bg-red-400/10 text-red-400"
+            )}
+          >
+            No Whitepaper
+          </div>
+        )}
       </div>
       <div className="grid grid-cols-1 bg-gray-700/10 sm:grid-cols-2  lg:grid-cols-3">
         {stats.slice(0, 3).map((stat, statIdx) => (
