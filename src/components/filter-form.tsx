@@ -64,7 +64,7 @@ export const FilterForm: FC<FilterFormProps> = ({
         </div>
       </div>
       <div className={"flex items-center gap-1 lg:flex-col lg:items-start"}>
-        <label className="w-1/2 whitespace-nowrap text-xs font-semibold text-gray-100">
+        <label className="w-1/2 whitespace-nowrap text-xs font-medium text-gray-100">
           Coin Name
         </label>
         <input
@@ -85,7 +85,7 @@ export const FilterForm: FC<FilterFormProps> = ({
         {" "}
         <label
           className="
- w-1/2 whitespace-nowrap text-xs font-semibold text-gray-100"
+ w-1/2 whitespace-nowrap text-xs font-medium text-gray-100"
         >
           Ticker
         </label>{" "}
@@ -104,10 +104,9 @@ export const FilterForm: FC<FilterFormProps> = ({
       </div>
 
       <div className={"flex items-center gap-1 lg:flex-col lg:items-start"}>
-        {" "}
         <label
           className="
- w-1/2 whitespace-nowrap text-xs font-semibold text-gray-100"
+ w-1/2 whitespace-nowrap text-xs font-medium text-gray-100"
         >
           Min Market Cap
         </label>{" "}
@@ -140,10 +139,10 @@ export const FilterForm: FC<FilterFormProps> = ({
       <div className={"flex items-center gap-1 lg:flex-col lg:items-start"}>
         <label
           className="
- w-1/2 whitespace-nowrap text-xs font-semibold text-gray-100"
+ w-1/2 whitespace-nowrap text-xs font-medium text-gray-100"
         >
           Max Market Cap
-        </label>{" "}
+        </label>
         <div className="relative  w-full">
           <span className="absolute left-2 top-1/2 -translate-y-1/2 transform  text-gray-400">
             $
@@ -174,7 +173,7 @@ export const FilterForm: FC<FilterFormProps> = ({
         {" "}
         <label
           className="
- w-1/2 whitespace-nowrap text-xs font-semibold text-gray-100"
+ w-1/2 whitespace-nowrap text-xs font-medium text-gray-100"
         >
           Min Risk Level
         </label>{" "}
@@ -196,7 +195,7 @@ export const FilterForm: FC<FilterFormProps> = ({
         {" "}
         <label
           className="
- w-1/2 whitespace-nowrap text-xs font-semibold text-gray-100"
+ w-1/2 whitespace-nowrap text-xs font-medium text-gray-100"
         >
           Max Risk Level
         </label>{" "}
@@ -215,32 +214,48 @@ export const FilterForm: FC<FilterFormProps> = ({
       </div>
 
       <div className={"flex items-center gap-1 lg:flex-col lg:items-start"}>
-        <label
-          className="
- w-1/2 whitespace-nowrap text-xs font-semibold text-gray-100"
-        >
-          White Paper
-        </label>
-        <input
-          className={"rounded-lg"}
-          type="checkbox"
-          onChange={(e) =>
-            handleInputChange(e.target.checked, filterActions.SET_WHITE_PAPER)
-          }
-        />
-        <label
-          className="
- w-1/2 whitespace-nowrap text-xs font-semibold text-gray-100"
-        >
-          Summary Available
-        </label>
-        <input
-          className={"rounded-lg"}
-          type="checkbox"
-          onChange={(e) =>
-            handleInputChange(e.target.checked, filterActions.SET_SUMMARY)
-          }
-        />
+        <div className="relative flex items-start">
+          <div className="flex h-6 items-center">
+            <input
+              className="h-5 w-5 rounded bg-gray-200 text-fuchsia-600 focus:ring-fuchsia-600"
+              type="checkbox"
+              onChange={(e) =>
+                handleInputChange(
+                  e.target.checked,
+                  filterActions.SET_WHITE_PAPER
+                )
+              }
+            />
+          </div>
+          <div className="ml-3 text-sm leading-6">
+            <label
+              htmlFor="comments"
+              className="text-xs font-medium text-gray-100"
+            >
+              White Paper
+            </label>
+          </div>
+        </div>
+
+        <div className="relative flex items-start">
+          <div className="flex h-6 items-center ">
+            <input
+              className="h-5 w-5 rounded bg-gray-200 text-fuchsia-600 focus:ring-fuchsia-600"
+              type="checkbox"
+              onChange={(e) =>
+                handleInputChange(e.target.checked, filterActions.SET_SUMMARY)
+              }
+            />
+          </div>
+          <div className="ml-3 text-sm leading-6">
+            <label
+              htmlFor="comments"
+              className=" text-xs font-medium text-gray-100"
+            >
+              Summary Available
+            </label>
+          </div>
+        </div>
       </div>
     </form>
   );

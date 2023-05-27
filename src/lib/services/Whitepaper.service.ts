@@ -90,6 +90,7 @@ export const WhitePaperService = {
         });
       }
     } catch (e: any) {
+      console.log(e.message);
       if (e.message.includes("No links with 'whitepaper' found")) {
         console.log("No links with 'whitepaper' found", link);
         await prisma.coin.update({
