@@ -3,6 +3,7 @@ import { prisma } from "@/server/db";
 import { ChatCompletionRequestMessageRoleEnum } from "openai";
 import { OpenAIService } from "@/lib/services/OpenAI.service";
 import { MetricZodSchema } from "@/lib/schemas/coin.schema";
+import { logger } from "@/lib/logger";
 
 let browserPromise: Promise<Browser> | undefined;
 
@@ -65,6 +66,20 @@ export const WhitePaperService = {
         // navigate to the whitepaper link
         await page.goto(href, { waitUntil: "networkidle2", timeout: 30000 });
 
+        // check if the page is a pdf
+        const isPdf = await page.evaluate(() => {
+          return (
+            document.contentType === "application/pdf" ||
+            document.contentType === "x-google-chrome-pdf"
+          );
+        });
+
+        if (isPdf) {
+          logger.info(
+            `Whitepaper is a pdf, skipping..., ${href} ${document.body}`
+          );
+          return;
+        }
         // get the text
         const text = await page.evaluate(() => document.body.innerText);
         await prisma.coin.update({
