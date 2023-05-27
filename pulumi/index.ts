@@ -189,3 +189,58 @@ const targetUpdateCoinData = new aws.cloudwatch.EventTarget(
     arn: updateCoinDataLambda.arn,
   }
 );
+
+// Permissions for addNewCoinsLambda
+const permissionAddNewCoins = new aws.lambda.Permission(
+  "PermissionForAddNewCoinsFunction",
+  {
+    action: "lambda:InvokeFunction",
+    function: addNewCoinsLambda.arn,
+    principal: "events.amazonaws.com",
+    sourceArn: ruleAddNewCoins.arn,
+  }
+);
+
+// Permissions for openAiAnalysisLambda
+const permissionOpenAiAnalysis = new aws.lambda.Permission(
+  "PermissionForOpenAiAnalysisFunction",
+  {
+    action: "lambda:InvokeFunction",
+    function: openAiAnalysisLambda.arn,
+    principal: "events.amazonaws.com",
+    sourceArn: ruleOpenAiAnalysis.arn,
+  }
+);
+
+// Permissions for riskAnalysisLambda
+const permissionRiskAnalysis = new aws.lambda.Permission(
+  "PermissionForRiskAnalysisFunction",
+  {
+    action: "lambda:InvokeFunction",
+    function: riskAnalysisLambda.arn,
+    principal: "events.amazonaws.com",
+    sourceArn: ruleRiskAnalysis.arn,
+  }
+);
+
+// Permissions for scrapeWhitePapersLambda
+const permissionScrapeWhitePapers = new aws.lambda.Permission(
+  "PermissionForScrapeWhitePapersFunction",
+  {
+    action: "lambda:InvokeFunction",
+    function: scrapeWhitePapersLambda.arn,
+    principal: "events.amazonaws.com",
+    sourceArn: ruleScrapeWhitePapers.arn,
+  }
+);
+
+// Permissions for updateCoinDataLambda
+const permissionUpdateCoinData = new aws.lambda.Permission(
+  "PermissionForUpdateCoinDataFunction",
+  {
+    action: "lambda:InvokeFunction",
+    function: updateCoinDataLambda.arn,
+    principal: "events.amazonaws.com",
+    sourceArn: ruleUpdateCoinData.arn,
+  }
+);
