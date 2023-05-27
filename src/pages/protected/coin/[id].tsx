@@ -92,7 +92,7 @@ export default function CoinPage() {
             )}
           </p>
         </div>
-        {!coin.noWhitePaper ? (
+        {coin.noWhitePaper === false ? (
           <a
             className={classNames(
               "order-first flex-none rounded-full bg-indigo-400/10 px-2 py-1 text-xs font-medium text-indigo-400 ring-1 ring-inset ring-indigo-400/30 sm:order-none"
