@@ -24,11 +24,14 @@ export const WhitePaperService = {
 
     if (process.env.CRONJOB === "true") {
       if (!browserPromise) {
+        console.log("launching puppeteer");
         browserPromise = puppeteer.launch({
           headless: "new",
           args: ["--no-sandbox", "--disable-setuid-sandbox"],
           ignoreDefaultArgs: ["--disable-extensions"],
         });
+      } else {
+        console.log("browserPromise already exists");
       }
       return browserPromise;
     }
@@ -94,18 +97,10 @@ export const WhitePaperService = {
           },
         });
       } else {
-        console.log("No links with 'whitepaper' found", link);
-        await prisma.coin.update({
-          where: {
-            id: coinId,
-          },
-          data: {
-            noWhitePaper: true,
-          },
-        });
+        throw Error("No links with 'whitepaper' found");
       }
     } catch (e: any) {
-      console.log(e.message);
+      console.log(e.message, link);
       if (e.message.includes("No links with 'whitepaper' found")) {
         console.log("No links with 'whitepaper' found", link);
         await prisma.coin.update({
@@ -118,6 +113,7 @@ export const WhitePaperService = {
         });
       }
     } finally {
+      console.log("closing page for", link);
       await page.close();
     }
   },
