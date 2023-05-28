@@ -100,9 +100,8 @@ export const WhitePaperService = {
         throw Error("No links with 'whitepaper' found");
       }
     } catch (e: any) {
-      console.log(e.message, link);
       if (e.message.includes("No links with 'whitepaper' found")) {
-        console.log("No links with 'whitepaper' found", link);
+        logger.warn("No links with 'whitepaper' found", link);
         await prisma.coin.update({
           where: {
             id: coinId,
@@ -112,10 +111,11 @@ export const WhitePaperService = {
           },
         });
       } else {
+        logger.error(`Error in getWhitePaper, ${e.message}, ${link}`);
         throw e;
       }
     } finally {
-      console.log("closing page for", link);
+      logger.info(`closing page for ${link}`);
       await page.close();
     }
   },
