@@ -113,6 +113,7 @@ export const WhitePaperService = {
         } else {
           throw Error("No links with 'whitepaper' found");
         }
+        break;
       } catch (e: any) {
         if (
           e.message.includes("No links with 'whitepaper' found") ||
@@ -127,6 +128,7 @@ export const WhitePaperService = {
               noWhitePaper: true,
             },
           });
+          break;
         } else {
           logger.error(`Error in getWhitePaper, ${e.message}, ${link}`);
           retries++;
@@ -135,7 +137,6 @@ export const WhitePaperService = {
         logger.info(`closing page for ${link}`);
         await page.close();
       }
-      break;
     }
     if (retries === maxRetries) {
       logger.error(
