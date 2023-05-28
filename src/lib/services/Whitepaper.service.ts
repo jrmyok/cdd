@@ -25,6 +25,7 @@ export const WhitePaperService = {
     if (process.env.CRONJOB === "true") {
       if (!browserPromise) {
         console.log("launching puppeteer");
+
         browserPromise = puppeteer.launch({
           headless: "new",
           args: ["--no-sandbox", "--disable-setuid-sandbox"],
@@ -41,8 +42,6 @@ export const WhitePaperService = {
     );
   },
 
-  // https://www.digitalocean.com/community/tutorials/how-to-scrape-a-website-using-node-js-and-puppeteer#step-4-mdash-scraping-data-from-multiple-pages
-  // Issue if there are multiple pages open at once in promise alls
   async getWhitePaper({
     browser,
     link,
@@ -53,76 +52,95 @@ export const WhitePaperService = {
     browser: Browser;
   }) {
     const page = await browser.newPage();
+    // set page to not load images and css
+    await page.setRequestInterception(true);
+    page.on("request", (request) => {
+      if (
+        ["image", "stylesheet", "font"].indexOf(request.resourceType()) !== -1
+      ) {
+        request.abort();
+      } else {
+        request.continue();
+      }
+    });
+    const maxRetries = 3;
+    let retries = 0;
+    while (retries < maxRetries) {
+      try {
+        await page.goto(link, { waitUntil: "networkidle2", timeout: 30000 });
 
-    try {
-      await page.goto(link, { waitUntil: "networkidle2", timeout: 30000 });
+        // Find a link containing 'whitepaper' text and click it
+        const whitepaperLink = await page.$x("//a[contains(., 'Whitepaper')]");
+        if (whitepaperLink.length > 0) {
+          const href = await (whitepaperLink[0] as ElementHandle).evaluate(
+            (el) => el.getAttribute("href")
+          );
 
-      // Find a link containing 'whitepaper' text and click it
-      const whitepaperLink = await page.$x("//a[contains(., 'Whitepaper')]");
-      if (whitepaperLink.length > 0) {
-        const href = await (whitepaperLink[0] as ElementHandle).evaluate((el) =>
-          el.getAttribute("href")
-        );
+          if (!href) {
+            throw Error("No links with 'whitepaper' found");
+          }
 
-        if (!href) {
+          // navigate to the whitepaper link
+          await page.goto(href, { waitUntil: "networkidle2", timeout: 30000 });
+
+          // check if the page is a pdf
+          const isPdf = await page.evaluate(() => {
+            return (
+              document.contentType === "application/pdf" ||
+              document.contentType === "x-google-chrome-pdf"
+            );
+          });
+
+          if (isPdf) {
+            logger.info(
+              `Whitepaper is a pdf, skipping..., ${href} ${document.body}`
+            );
+            return;
+          }
+          // get the text
+          const text = await page.evaluate(() => document.body.innerText);
+          await prisma.coin.update({
+            where: {
+              id: coinId,
+            },
+            data: {
+              // for now, mark the coin as having a whitepaper
+              noWhitePaper: false,
+              whitePaper: text,
+              whitePaperUrl: href,
+            },
+          });
+        } else {
           throw Error("No links with 'whitepaper' found");
         }
-
-        // navigate to the whitepaper link
-        await page.goto(href, { waitUntil: "networkidle2", timeout: 30000 });
-
-        // check if the page is a pdf
-        const isPdf = await page.evaluate(() => {
-          return (
-            document.contentType === "application/pdf" ||
-            document.contentType === "x-google-chrome-pdf"
-          );
-        });
-
-        if (isPdf) {
-          logger.info(
-            `Whitepaper is a pdf, skipping..., ${href} ${document.body}`
-          );
-          return;
+      } catch (e: any) {
+        if (
+          e.message.includes("No links with 'whitepaper' found") ||
+          e.message.includes("net::ERR_NAME_NOT_RESOLVED")
+        ) {
+          logger.warn("No links with 'whitepaper' found", link);
+          await prisma.coin.update({
+            where: {
+              id: coinId,
+            },
+            data: {
+              noWhitePaper: true,
+            },
+          });
+        } else {
+          logger.error(`Error in getWhitePaper, ${e.message}, ${link}`);
+          retries++;
         }
-        // get the text
-        const text = await page.evaluate(() => document.body.innerText);
-        await prisma.coin.update({
-          where: {
-            id: coinId,
-          },
-          data: {
-            // for now, mark the coin as having a whitepaper
-            noWhitePaper: false,
-            whitePaper: text,
-            whitePaperUrl: href,
-          },
-        });
-      } else {
-        throw Error("No links with 'whitepaper' found");
-      }
-    } catch (e: any) {
-      if (
-        e.message.includes("No links with 'whitepaper' found") ||
-        e.message.includes("net::ERR_NAME_NOT_RESOLVED")
-      ) {
-        logger.warn("No links with 'whitepaper' found", link);
-        await prisma.coin.update({
-          where: {
-            id: coinId,
-          },
-          data: {
-            noWhitePaper: true,
-          },
-        });
-      } else {
-        logger.error(`Error in getWhitePaper, ${e.message}, ${link}`);
+      } finally {
         logger.info(`closing page for ${link}`);
-        throw e;
+        await page.close();
       }
-    } finally {
-      logger.info(`closing page for ${link}`);
-      await page.close();
+      break;
+    }
+    if (retries === maxRetries) {
+      logger.error(
+        `Failed to set up lifecycle events after multiple attempts. ${link}`
+      );
     }
   },
 
