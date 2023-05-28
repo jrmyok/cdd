@@ -119,7 +119,7 @@ export const WhitePaperService = {
           e.message.includes("No links with 'whitepaper' found") ||
           e.message.includes("net::ERR_NAME_NOT_RESOLVED")
         ) {
-          logger.warn("No links with 'whitepaper' found", link);
+          logger.warn(`No links with 'whitepaper' found ${link}`);
           await prisma.coin.update({
             where: {
               id: coinId,
