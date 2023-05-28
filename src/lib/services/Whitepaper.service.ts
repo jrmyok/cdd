@@ -111,6 +111,8 @@ export const WhitePaperService = {
             noWhitePaper: true,
           },
         });
+      } else {
+        throw e;
       }
     } finally {
       console.log("closing page for", link);
