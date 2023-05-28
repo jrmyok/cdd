@@ -100,7 +100,10 @@ export const WhitePaperService = {
         throw Error("No links with 'whitepaper' found");
       }
     } catch (e: any) {
-      if (e.message.includes("No links with 'whitepaper' found")) {
+      if (
+        e.message.includes("No links with 'whitepaper' found") ||
+        e.message.includes("net::ERR_NAME_NOT_RESOLVED")
+      ) {
         logger.warn("No links with 'whitepaper' found", link);
         await prisma.coin.update({
           where: {
@@ -112,6 +115,8 @@ export const WhitePaperService = {
         });
       } else {
         logger.error(`Error in getWhitePaper, ${e.message}, ${link}`);
+        logger.info(`closing page for ${link}`);
+        await page.close();
         throw e;
       }
     } finally {
