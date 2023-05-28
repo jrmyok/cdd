@@ -41,6 +41,8 @@ export const WhitePaperService = {
     );
   },
 
+  // https://www.digitalocean.com/community/tutorials/how-to-scrape-a-website-using-node-js-and-puppeteer#step-4-mdash-scraping-data-from-multiple-pages
+  // Issue if there are multiple pages open at once in promise alls
   async getWhitePaper({
     browser,
     link,
@@ -116,7 +118,6 @@ export const WhitePaperService = {
       } else {
         logger.error(`Error in getWhitePaper, ${e.message}, ${link}`);
         logger.info(`closing page for ${link}`);
-        await page.close();
         throw e;
       }
     } finally {
