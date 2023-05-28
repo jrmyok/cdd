@@ -20,22 +20,13 @@ export default async function handler(
       if (coin.noWhitePaper !== null) continue;
       logger.info(`Getting white paper for ${coin.coinGeckoId}`);
 
-      const task = async () => {
-        await WhitePaperService.getWhitePaper({
-          coinId: coin.id,
-          browser,
-          link:
-            coin.whitePaperUrl ??
-            `https://www.coingecko.com/en/coins/${coin.coinGeckoId}`,
-        });
-      };
-
-      promises.push(task());
-
-      if (promises.length > 5) {
-        await Promise.all(promises);
-        promises.length = 0;
-      }
+      await WhitePaperService.getWhitePaper({
+        coinId: coin.id,
+        browser,
+        link:
+          coin.whitePaperUrl ??
+          `https://www.coingecko.com/en/coins/${coin.coinGeckoId}`,
+      });
     }
 
     await Promise.all(promises);
