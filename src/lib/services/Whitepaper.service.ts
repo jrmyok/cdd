@@ -133,11 +133,11 @@ export const WhitePaperService = {
           logger.error(`Error in getWhitePaper, ${e.message}, ${link}`);
           retries++;
         }
-      } finally {
-        logger.info(`closing page for ${link}`);
-        await page.close();
       }
     }
+    logger.info(`closing page for ${link}`);
+    await page.close();
+
     if (retries === maxRetries) {
       logger.error(
         `Failed to set up lifecycle events after multiple attempts. ${link}`
