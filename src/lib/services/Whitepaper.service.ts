@@ -139,6 +139,14 @@ export const WhitePaperService = {
     await page.close();
 
     if (retries === maxRetries) {
+      await prisma.coin.update({
+        where: {
+          id: coinId,
+        },
+        data: {
+          noWhitePaper: true,
+        },
+      });
       logger.error(
         `Failed to set up lifecycle events after multiple attempts. ${link}`
       );
