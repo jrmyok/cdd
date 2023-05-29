@@ -4,7 +4,7 @@ import { newCoinSchema } from "@/lib/schemas/coin.schema";
 import { logger as baseLogger } from "@/lib/logger";
 import CoinDataService from "@/lib/services/Coin.service";
 
-const logger = baseLogger("[white paper scraper]");
+const logger = baseLogger("add-new-coins");
 
 const coinDataService = new CoinDataService({ logger });
 
@@ -16,10 +16,10 @@ export default async function handler(
   try {
     authenticate(req);
 
-    console.log("Fetching coin cache...");
+    logger.info("Fetching coin cache...");
     const currentCoinData = await coinDataService.getAllCoins();
 
-    console.log("Fetching all coin data from CoinGecko...");
+    logger.info("Fetching all coin data from CoinGecko...");
     const allCoins = await coinDataService.getCoinList();
 
     const newCoins = allCoins.filter(
@@ -32,16 +32,16 @@ export default async function handler(
     // update prisma with new coins
     const response = await Promise.all(
       newCoins.map(async (coin) => {
-        console.log(`Adding ${coin.name}...`);
+        logger.info(`Adding ${coin.name}...`);
 
         const parsedCoin = newCoinSchema.parse(coin);
         await coinDataService.addCoin(parsedCoin);
       })
     );
 
-    logger.info("[add new coins] added new coins", response);
+    logger.info("added new coins", response);
     handleSuccess("added new coins", res, logger);
   } catch (e) {
-    handleError(" new coins job", e, res, logger);
+    handleError("new coins job", e, res, logger);
   }
 }

@@ -27,8 +27,6 @@ export const coinRouter = router({
   getCoinsByFilter: protectedProcedure
     .input(GetCoinSchema)
     .query(({ ctx, input }) => {
-      // augment the filter to make sure markcap is not null
-      console.log(input);
       const filter = Object.assign(input.filter || {}, {
         ...input.filter,
         marketCap: {

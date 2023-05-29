@@ -3,7 +3,7 @@ import { type NextApiRequest, type NextApiResponse } from "next";
 import { logger as baseLogger } from "@/lib/logger";
 import OpenAIService from "@/lib/services/OpenAI.service";
 
-const logger = baseLogger("risk-analysis");
+const logger = baseLogger("openai-analysis");
 const openAiService = new OpenAIService({ logger });
 
 export default async function handler(
