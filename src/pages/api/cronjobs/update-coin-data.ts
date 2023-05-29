@@ -1,7 +1,11 @@
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { authenticate, handleError, handleSuccess } from "@/lib/utils";
-import { CoinDataService } from "@/lib/services/Coin.service";
-import { logger } from "@/lib/logger";
+import { logger as baseLogger } from "@/lib/logger";
+import CoinDataService from "@/lib/services/Coin.service";
+
+const logger = baseLogger("update-coin-data");
+
+const coinDataService = new CoinDataService({ logger });
 
 export default async function handler(
   req: NextApiRequest,
@@ -10,8 +14,8 @@ export default async function handler(
   try {
     authenticate(req);
 
-    console.log("Fetching coin cache...");
-    const currentCoinData = await CoinDataService.getAllCoins();
+    logger.info("Fetching coin cache...");
+    const currentCoinData = await coinDataService.getAllCoins();
     const outdatedCoins = currentCoinData.filter((coin) => {
       const now = new Date();
       const coinDate = new Date(coin.lastUpdated);
@@ -19,13 +23,13 @@ export default async function handler(
       return diff > 15;
     });
 
-    console.log("Filtered coins...");
+    logger.info("Filtered coins...");
     const coinGeckoIds = outdatedCoins.map((coin) => coin.coinGeckoId);
-    console.log("Updating coin data from CoinGecko...");
-    await CoinDataService.updateCoinDataByIds(coinGeckoIds);
-    logger.info("[update coin data] updated coin data");
-    handleSuccess("update coin data", res);
+    logger.info("Updating coin data from CoinGecko...");
+    await coinDataService.updateCoinDataByIds(coinGeckoIds);
+    logger.info("updated coin data");
+    handleSuccess("update coin data", res, logger);
   } catch (e) {
-    handleError("update coin data", e, res);
+    handleError("update coin data", e, res, logger);
   }
 }

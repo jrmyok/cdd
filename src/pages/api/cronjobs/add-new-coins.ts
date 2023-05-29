@@ -1,8 +1,12 @@
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { authenticate, handleError, handleSuccess } from "@/lib/utils";
-import { CoinDataService } from "@/lib/services/Coin.service";
 import { newCoinSchema } from "@/lib/schemas/coin.schema";
-import { logger } from "@/lib/logger";
+import { logger as baseLogger } from "@/lib/logger";
+import CoinDataService from "@/lib/services/Coin.service";
+
+const logger = baseLogger("[white paper scraper]");
+
+const coinDataService = new CoinDataService({ logger });
 
 // run daily
 export default async function handler(
@@ -13,10 +17,10 @@ export default async function handler(
     authenticate(req);
 
     console.log("Fetching coin cache...");
-    const currentCoinData = await CoinDataService.getAllCoins();
+    const currentCoinData = await coinDataService.getAllCoins();
 
     console.log("Fetching all coin data from CoinGecko...");
-    const allCoins = await CoinDataService.getCoinList();
+    const allCoins = await coinDataService.getCoinList();
 
     const newCoins = allCoins.filter(
       (coin) =>
@@ -31,15 +35,13 @@ export default async function handler(
         console.log(`Adding ${coin.name}...`);
 
         const parsedCoin = newCoinSchema.parse(coin);
-        await CoinDataService.addCoin(parsedCoin);
+        await coinDataService.addCoin(parsedCoin);
       })
     );
 
     logger.info("[add new coins] added new coins", response);
-    handleSuccess("added new coins", res);
-
-    const msg = `✅ new coins job`;
+    handleSuccess("added new coins", res, logger);
   } catch (e) {
-    handleError(" new coins job", e, res);
+    handleError(" new coins job", e, res, logger);
   }
 }

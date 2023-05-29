@@ -1,14 +1,29 @@
 import puppeteer, { type Browser, type ElementHandle } from "puppeteer";
+import { baseLogger } from "@/lib/logger";
 import { prisma } from "@/server/db";
-import { ChatCompletionRequestMessageRoleEnum } from "openai";
-import { OpenAIService } from "@/lib/services/OpenAI.service";
-import { MetricZodSchema } from "@/lib/schemas/coin.schema";
-import { logger } from "@/lib/logger";
 
-let browserPromise: Promise<Browser> | undefined;
+class WhitePaperService {
+  private browserPromise: Promise<Browser> | undefined;
+  private logger: any;
 
-export const WhitePaperService = {
-  async getBrowser(): Promise<Browser> {
+  constructor({ logger = baseLogger } = {}) {
+    this.logger = logger.child({ service: "WhitePaperService" });
+
+    if (process.env.CRONJOB === "true") {
+      if (!this.browserPromise) {
+        this.logger.info("launching puppeteer");
+        this.browserPromise = puppeteer.launch({
+          headless: "new",
+          args: ["--no-sandbox", "--disable-setuid-sandbox"],
+          ignoreDefaultArgs: ["--disable-extensions"],
+        });
+      } else {
+        this.logger.info("browserPromise already exists");
+      }
+    }
+  }
+
+  public async getBrowser(): Promise<Browser> {
     if (process.env.NODE_ENV === "development") {
       // In development mode, use a global variable so that the value
       // is preserved across module reloads caused by HMR (Hot Module Replacement).
@@ -22,27 +37,16 @@ export const WhitePaperService = {
       return global._browserPromise;
     }
 
-    if (process.env.CRONJOB === "true") {
-      if (!browserPromise) {
-        console.log("launching puppeteer");
-
-        browserPromise = puppeteer.launch({
-          headless: "new",
-          args: ["--no-sandbox", "--disable-setuid-sandbox"],
-          ignoreDefaultArgs: ["--disable-extensions"],
-        });
-      } else {
-        console.log("browserPromise already exists");
-      }
-      return browserPromise;
+    if (this.browserPromise) {
+      return this.browserPromise;
     }
 
     throw Error(
       "PuppeteerHelper: getBrowser() is not available in non-cronjob mode"
     );
-  },
+  }
 
-  async getWhitePaper({
+  public async getWhitePaper({
     browser,
     link,
     coinId,
@@ -92,7 +96,7 @@ export const WhitePaperService = {
           });
 
           if (isPdf) {
-            logger.info(
+            this.logger.info(
               `Whitepaper is a pdf, skipping..., ${href} ${document.body}`
             );
             return;
@@ -119,7 +123,7 @@ export const WhitePaperService = {
           e.message.includes("No links with 'whitepaper' found") ||
           e.message.includes("net::ERR_NAME_NOT_RESOLVED")
         ) {
-          logger.warn(`No links with 'whitepaper' found ${link}`);
+          this.logger.warn(`No links with 'whitepaper' found ${link}`);
           await prisma.coin.update({
             where: {
               id: coinId,
@@ -130,15 +134,15 @@ export const WhitePaperService = {
           });
           break;
         } else {
-          logger.error(`Error in getWhitePaper, ${e.message}, ${link}`);
+          this.logger.error(`Error in getWhitePaper, ${e.message}, ${link}`);
           retries++;
         }
       }
     }
-    logger.info(`closing page for ${link}`);
+    this.logger.info(`closing page for ${link}`);
     await page.close();
 
-    if (retries === maxRetries) {
+    if (retries >= maxRetries) {
       await prisma.coin.update({
         where: {
           id: coinId,
@@ -147,66 +151,11 @@ export const WhitePaperService = {
           noWhitePaper: true,
         },
       });
-      logger.error(
+      this.logger.error(
         `Failed to set up lifecycle events after multiple attempts. ${link}`
       );
     }
-  },
+  }
+}
 
-  async analyseWhitePaper(whitepaper: string) {
-    // create a zod schema for the data we want to extract
-    const type = `{
-      "summary": string | null; // is there a summary?
-      "regulation": boolean; // is the project regulated? does the project have a legal entity? does the project mention regulation in the whitepaper? if nothing is mentioned assume false.
-      "publicTeam": boolean; // is the team public? does the team have linkedin profiles? does the team have github profiles? if nothing is mentioned assume false.
-    }`;
-
-    // only github links in the whitepaper
-    // const exampleWhitePaper = ``;
-    const exampleObject = `{
-      "summary": null,
-      "regulation": false,
-      "publicTeam": true
-    }`;
-
-    const prompt = {
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: ChatCompletionRequestMessageRoleEnum.System,
-          content: `You are a crypto investment analyst, extracting the following data from whitepapers into the following typescript object: ${type}`,
-        },
-        // {
-        //   role: ChatCompletionRequestMessageRoleEnum.User,
-        //   content: exampleWhitePaper,
-        // },
-        {
-          role: ChatCompletionRequestMessageRoleEnum.Assistant,
-          content: exampleObject,
-        },
-        {
-          role: ChatCompletionRequestMessageRoleEnum.User,
-          content: `whitepaper = ${whitepaper}`,
-        },
-      ],
-      temperature: 0,
-    };
-
-    try {
-      const extractedData = await OpenAIService.generateChatCompletion(prompt);
-      try {
-        const jsonObject = JSON.parse(extractedData);
-        return MetricZodSchema.parse(jsonObject);
-      } catch (error) {
-        console.error(
-          "OpenAIHelper createChatCompletionWithType error",
-          error,
-          extractedData
-        );
-        throw error;
-      }
-    } catch (error: any) {
-      throw new Error(error);
-    }
-  },
-};
+export default WhitePaperService;

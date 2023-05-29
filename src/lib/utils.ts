@@ -1,7 +1,7 @@
-import { logger } from "@/lib/logger";
 import { type NextApiRequest, type NextApiResponse } from "next";
+import { baseLogger } from "@/lib/logger";
 
-export function authenticate(req: NextApiRequest) {
+export function authenticate(req: NextApiRequest, logger = baseLogger) {
   const { "x-secret-key": secret } = req.body;
   console.log(process.env.CRONJOB_SECRET_KEY, secret, req.body);
   if (
@@ -14,8 +14,13 @@ export function authenticate(req: NextApiRequest) {
   logger.info(`${req.method}: ${req.url}`);
 }
 
-export function handleError(taskName: string, err: any, res: NextApiResponse) {
-  const msg = `❌ ${taskName} task failed with error: ${err}`;
+export function handleError(
+  taskName: string,
+  err: any,
+  res: NextApiResponse,
+  logger = baseLogger
+) {
+  const msg = `job failed: ${err}`;
   if (err instanceof Error) {
     res.status(400).json(msg);
   } else {
@@ -27,9 +32,10 @@ export function handleError(taskName: string, err: any, res: NextApiResponse) {
 export function handleSuccess(
   taskName: string,
   res: NextApiResponse,
-  customMessage?: any
+  customMessage?: any,
+  logger = baseLogger
 ) {
-  const msg = `✅ ${taskName} task completed successfully`;
+  const msg = `job completed successfully`;
 
   logger.info(msg);
   if (customMessage) {

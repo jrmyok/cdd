@@ -1,8 +1,12 @@
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { authenticate, handleError, handleSuccess } from "@/lib/utils";
-import { logger } from "@/lib/logger";
-import { CoinDataService } from "@/lib/services/Coin.service";
+import { logger as baseLogger } from "@/lib/logger";
 import { prisma } from "@/server/db";
+import CoinDataService from "@/lib/services/Coin.service";
+
+const logger = baseLogger("risk-analysis");
+
+const coinDataService = new CoinDataService({ logger });
 
 export default async function handler(
   req: NextApiRequest,
@@ -10,7 +14,7 @@ export default async function handler(
 ) {
   try {
     authenticate(req);
-    const coins = await CoinDataService.getAllCoins();
+    const coins = await coinDataService.getAllCoins();
 
     // max values required for normalization
     const maxMarketCap = Math.max(...coins.map((coin) => coin.marketCap || 0));
@@ -63,8 +67,8 @@ export default async function handler(
     }
 
     logger.info("[risk analysis] updated coin white papers");
-    handleSuccess("risk analysis updated", res);
+    handleSuccess("risk analysis updated", res, logger);
   } catch (e) {
-    handleError("risk analysis", e, res);
+    handleError("risk analysis", e, res, logger);
   }
 }
