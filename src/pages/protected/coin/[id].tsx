@@ -70,8 +70,8 @@ export default function CoinPage() {
 
   return (
     <Layout>
-      <div className="flex flex-col items-start justify-between gap-x-8 gap-y-4 bg-gray-700/10 px-4 py-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
-        <div>
+      <div className="border-b-none mt-10 flex flex-col items-start justify-between gap-x-8 gap-y-4 rounded-t-lg border border-white/5 bg-gray-400/10  px-4 px-4  py-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
+        <div className={""}>
           <div className="flex items-center gap-x-3">
             <h1 className="flex gap-x-3 text-base leading-7">
               <div className="h-8 w-8 flex-none rounded-full bg-gray-800">
@@ -114,7 +114,7 @@ export default function CoinPage() {
           </div>
         )}
       </div>
-      <div className="grid grid-cols-1 bg-gray-700/10 sm:grid-cols-2  lg:grid-cols-3">
+      <div className="grid grid-cols-1 bg-gray-400/10 sm:grid-cols-2 lg:grid-cols-3">
         {stats.slice(0, 3).map((stat, statIdx) => (
           <div
             key={titles[stat.name]}
@@ -124,7 +124,7 @@ export default function CoinPage() {
                 : statIdx === 2
                 ? "lg:border-l"
                 : "",
-              "border-t border-white/5 px-4 py-6 sm:px-6 lg:px-8"
+              "border-t border-white/5  px-4 py-6 sm:px-6 lg:px-8"
             )}
           >
             <p className="text-sm font-medium leading-6 text-gray-400">
@@ -145,11 +145,11 @@ export default function CoinPage() {
             key={stat.name}
             className={classNames(
               statIdx % 2 === 1
-                ? "sm:border-l"
+                ? "  sm:border-l"
                 : statIdx === 2
                 ? "lg:border-l"
                 : "",
-              "border-t border-white/5 px-4 py-6 sm:px-6 lg:px-8"
+              "  border-t border-white/5 px-4 py-6 sm:px-6 lg:px-8"
             )}
           >
             <p className="text-sm font-medium leading-6 text-gray-400">

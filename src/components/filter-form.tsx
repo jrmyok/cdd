@@ -32,7 +32,7 @@ export const FilterForm: FC<FilterFormProps> = ({
   return (
     <form
       className={
-        "col-span-1 flex flex-col gap-y-5 rounded-lg bg-gradient-to-br from-fuchsia-900 to-yellow-600 to-90% p-3 sm:py-5 sm:pl-5 sm:pr-7"
+        "col-span-1 flex flex-col gap-y-5 rounded-lg  bg-gradient-to-br from-fuchsia-900 to-yellow-600 to-90% px-4 py-5 sm:pl-6  sm:pr-7 lg:pl-7 lg:pr-8"
       }
     >
       <div className={"flex justify-between"}>

@@ -19,6 +19,7 @@ export default async function handler(
     // max values required for normalization
     const maxMarketCap = Math.max(...coins.map((coin) => coin.marketCap || 0));
     const maxVolume = Math.max(...coins.map((coin) => coin.totalVolume || 0));
+
     const maxCirculatingSupply = Math.max(
       ...coins.map((coin) => coin.circulatingSupply || 0)
     );
@@ -62,7 +63,7 @@ export default async function handler(
 
       await prisma.coin.update({
         where: { id: coin.id },
-        data: { riskLevel: riskScore },
+        data: { riskLevel: riskScore * 10 },
       });
     }
 

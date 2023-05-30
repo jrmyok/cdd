@@ -73,9 +73,9 @@ export default function Table() {
   };
 
   return (
-    <div className="w-full">
-      <div className="w-full flex-col sm:items-center">
-        <div className="sm:flex-auto">
+    <div className="w-full bg-black">
+      <div className="w-full flex-col space-y-4  sm:items-center  ">
+        <div className="rounded-lg border border-white/5 bg-gray-400/10 px-4 py-6 sm:flex-auto  sm:px-6 lg:px-8">
           <h1 className="text-base font-semibold leading-6 text-white">
             A list of available coins with verified data
           </h1>
@@ -83,7 +83,7 @@ export default function Table() {
             Data is updated every 15 minutes.
           </p>
         </div>
-        <div className="mt-4 w-full lg:grid lg:grid-cols-4 lg:gap-4">
+        <div className=" w-full lg:grid lg:grid-cols-4 lg:gap-4">
           <FilterForm
             state={state}
             errorState={errorState}

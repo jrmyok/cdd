@@ -102,7 +102,7 @@ class OpenAIService {
         return MetricZodSchema.parse(jsonObject);
       } catch (error) {
         this.logger.error(
-          `createChatCompletionWithType error, ${error}, ${extractedData}`
+          `createChatCompletion error, ${error}, ${extractedData}`
         );
         throw error;
       }
